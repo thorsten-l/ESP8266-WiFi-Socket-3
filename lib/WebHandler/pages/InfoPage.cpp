@@ -1,51 +1,51 @@
-#include "pages/Pages.h"
+#include "Pages.h"
 
-void handleInfoPage(AsyncWebServerRequest *request)
+void handleInfoPage()
 {
-  AsyncResponseStream *response = request->beginResponseStream("text/html");
-  response->print(TEMPLATE_HEADER);
-  response->printf(TEMPLATE_BODY, APP_NAME " - Info");
+  sendHeader(APP_NAME " - Info");
+  sendPrint("<form class='pure-form'>");
+  sendLegend("Application");
+  sendPrint(
+      "<p>Name: " APP_NAME "</p>"
+      "<p>Version: " APP_VERSION "</p>"
+      "<p>PlatformIO Environment: " PIOENV "</p>"
+      "<p>Author: Dr. Thorsten Ludewig &lt;t.ludewig@gmail.com></p>");
 
-  response->print("<form class='pure-form'>");
+  sendLegend("Build");
+  sendPrint("<p>Date: " __DATE__ "</p>"
+            "<p>Time: " __TIME__ "</p>");
 
-  prLegend(response, "Application");
+  sendLegend("RESTful API");
 
-  response->print(
-    "<p>Name: " APP_NAME "</p>"
-    "<p>Version: " APP_VERSION "</p>"
-    "<p>PlatformIO Environment: " PIOENV_NAME "</p>"
-    "<p>Author: Dr. Thorsten Ludewig &lt;t.ludewig@gmail.com></p>" );
+  sendPrintf(
+      "<p><a href='http://%s/info'>http://%s/info</a> - ESP8266 Info</p>",
+      WiFi.localIP().toString().c_str(), WiFi.localIP().toString().c_str());
+ 
+  sendPrintf(
+      "<p><a href='http://%s/on'>http://%s/on</a> - Socket ON</p>",
+      WiFi.localIP().toString().c_str(), WiFi.localIP().toString().c_str());
+ 
+  sendPrintf(
+      "<p><a href='http://%s/off'>http://%s/off</a> - Socket OFF</p>",
+      WiFi.localIP().toString().c_str(), WiFi.localIP().toString().c_str());
+ 
+  sendPrintf(
+      "<p><a href='http://%s/state'>http://%s/state</a> - Socket JSON status (0 or 1)</p>",
+      WiFi.localIP().toString().c_str(), WiFi.localIP().toString().c_str());
+ 
+  sendLegend("Services");
 
-  prLegend(response, "RESTful API");
+  sendPrintf("<p>OTA Enabled: %s</p>",
+             (appcfg.ota_enabled) ? "true" : "false");
+  sendPrintf("<p>OpenHAB Callback Enabled: %s</p>",
+             (appcfg.ohab_enabled) ? "true" : "false");
+//  sendPrintf("<p>Alexa Enabled: %s</p>",
+//             (appcfg.alexa_enabled) ? "true" : "false");
+  sendPrintf("<p>MQTT Enabled: %s</p>",
+             (appcfg.mqtt_enabled) ? "true" : "false");
+  sendPrintf("<p>Syslog Enabled: %s</p>",
+             (appcfg.syslog_enabled) ? "true" : "false");
 
-  char ipAddress[16];
-  strncpy(ipAddress, appcfg.net_host, 15);
-  ipAddress[15] = 0;
-
-  response->printf(
-    "<p><a href='http://%s/on'>http://%s/on</a> - Socket ON</p>"
-    "<p><a href='http://%s/off'>http://%s/off</a> - Socket OFF</p>"
-    "<p><a href='http://%s/state'>http://%s/state</a> - Socket JSON status "
-    "(0 or 1)</p>"
-    "<p><a href='http://%s/info'>http://%s/info</a> - ESP8266 Info</p>",
-    ipAddress, ipAddress, ipAddress, ipAddress, ipAddress, ipAddress,
-    ipAddress, ipAddress);
-
-  prLegend(response, "Build");
-  response->print("<p>Date: " __DATE__ "</p>"
-                  "<p>Time: " __TIME__ "</p>");
-
-  prLegend(response, "Services");
-  response->printf("<p>OpenHAB Callback Enabled: %s</p>",
-                     (appcfg.ohab_enabled) ? "true" : "false");
-  response->printf("<p>Alexa Enabled: %s</p>",
-                     (appcfg.alexa_enabled) ? "true" : "false");
-  response->printf("<p>MQTT Enabled: %s</p>",
-                     (appcfg.mqtt_enabled) ? "true" : "false");
-  response->printf("<p>Syslog Enabled: %s</p>",
-                     (appcfg.syslog_enabled) ? "true" : "false");
-
-  response->print("</form>");
-  response->print(TEMPLATE_FOOTER);
-  request->send(response);
+  sendPrint("</form>");
+  sendFooter();
 }

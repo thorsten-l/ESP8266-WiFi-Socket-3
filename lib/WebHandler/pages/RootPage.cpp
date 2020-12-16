@@ -1,54 +1,45 @@
 #include <App.hpp>
-#include "pages/Pages.h"
+#include "Pages.h"
 #include <RelayHandler.hpp>
 #ifdef HAVE_HLW8012
 #include <Hlw8012Handler.hpp>
 #endif
 
 static bool webPowerState;
+static char titleBuffer[100];
 
-void handleRootPage(AsyncWebServerRequest *request)
+void handleRootPage()
 {
-  webPowerState = relayHandler.isDelayedPowerOn();
-
-  // LOG1( "webPowerState (1) = %d\n", webPowerState );
-  if (request->hasParam("power"))
+  if ( server.args() == 1 && server.argName(0) == "power" )
   {
-    AsyncWebParameter *p = request->getParam("power");
-    const char *pv = p->value().c_str();
-    if (pv != 0 && strlen(pv) > 0)
+    if ( server.arg(0) == "ON")
     {
-      if (strcmp("ON", pv) == 0)
-      {
-        relayHandler.delayedOn();
-      }
-      if (strcmp("OFF", pv) == 0)
-      {
-        relayHandler.delayedOff();
-      }
+      relayHandler.delayedOn();
     }
-    request->redirect("/");
-    return;
+    if ( server.arg(0) == "OFF" )
+    {
+      relayHandler.delayedOff();
+    }
+    server.sendHeader( "Location", "/", true );
+    server.send ( 302, "text/plain", "");
+    server.client().stop();
   }
 
-  // LOG1( "webPowerState (3) = %d\n", webPowerState );
-  char titleBuffer[100];
+  webPowerState = relayHandler.isDelayedPowerOn();
+  
   sprintf(titleBuffer, APP_NAME " - %s", appcfg.ota_hostname);
+  sendHeader(titleBuffer);
 
-  AsyncResponseStream *response = request->beginResponseStream("text/html");
-  response->print(TEMPLATE_HEADER);
-  response->printf(TEMPLATE_BODY, titleBuffer);
+  sendPrint("<form class='pure-form pure-form-aligned'><fieldset>");
 
-  response->print("<form class='pure-form pure-form-aligned'><fieldset>");
-  prLegend(response, "Current Status");
-
-  response->printf("<div id='idpwr' class='pure-button' "
+  sendLegend("Current Status");
+  sendPrintf("<div id='idpwr' class='pure-button' "
                    "style='background-color: #%s'>Power is %s</div>",
                    webPowerState ? "80ff80" : "ff8080",
                    webPowerState ? "ON" : "OFF");
 
-  prLegend(response, "Actions");
-  response->print(
+  sendLegend("Actions");
+  sendPrint(
       "<a href=\"/?power=ON\" class=\"pure-button button-on\">ON</a>"
       "<a href=\"/?power=OFF\" class=\"pure-button button-off\">OFF</a>");
 
@@ -64,7 +55,7 @@ void handleRootPage(AsyncWebServerRequest *request)
   prTextGroupReadOnly( response, rid++, "Power", valueBuffer );
 #endif
 
-  response->print("</fieldset></form>");
+  sendPrint("</fieldset></form>\n");
 
 #ifdef HAVE_ENERGY_SENSOR
   response->print( "<script>function getPowerState(){"
@@ -85,7 +76,7 @@ void handleRootPage(AsyncWebServerRequest *request)
       "}"
     "})}setInterval(getPowerState,5e3);</script>" );
 #else
-  response->print(
+  sendPrint(
       "<script>function getPowerState(){var e = "
       "document.getElementById(\"idpwr\");fetch(\"/state\").then((resp) => "
       "resp.json()).then(function(data){if(data.state===1){e.textContent="
@@ -93,7 +84,5 @@ void handleRootPage(AsyncWebServerRequest *request)
       "{e.textContent=\"Power is OFF\";e.style=\"background-color: "
       "#ff8080\";}});} setInterval(getPowerState,10000);</script>");
 #endif
-
-  response->print(TEMPLATE_FOOTER);
-  request->send(response);
+  sendFooter();
 }

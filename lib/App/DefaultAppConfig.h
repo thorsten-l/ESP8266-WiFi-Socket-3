@@ -13,7 +13,8 @@
 #define DEFAULT_NET_GATEWAY "192.168.192.1"
 #define DEFAULT_NET_DNS "192.168.192.1"
 
-#define DEFAULT_OTA_HOSTNAME "wifi-socket-1"
+#define DEFAULT_OTA_ENABLED false
+#define DEFAULT_OTA_HOSTNAME "wifi-socket-%06x"
 #define DEFAULT_OTA_PASSWORD "otapass"
 
 #define DEFAULT_ADMIN_PASSWORD "admin"
@@ -35,18 +36,18 @@
 #define DEFAULT_ALEXA_DEVICENAME "Socket"
 
 #define DEFAULT_MQTT_ENABLED false
-#define DEFAULT_MQTT_CLIENTID "WifiSocket1"
+#define DEFAULT_MQTT_CLIENTID "wifi-socket-%06x"
 #define DEFAULT_MQTT_HOST "192.168.1.1"
 #define DEFAULT_MQTT_PORT 1883
 #define DEFAULT_MQTT_USEAUTH true
 #define DEFAULT_MQTT_USER "user"
 #define DEFAULT_MQTT_PASSWORD "password"
-#define DEFAULT_MQTT_INTOPIC "socket1/in"
-#define DEFAULT_MQTT_OUTTOPIC "socket1/out"
-#define DEFAULT_MQTT_TOPIC_VOLTAGE "socket1/voltage"
-#define DEFAULT_MQTT_TOPIC_CURRENT "socket1/current"
-#define DEFAULT_MQTT_TOPIC_POWER "socket1/power"
-#define DEFAULT_MQTT_TOPIC_JSON "socket1/json"
+#define DEFAULT_MQTT_INTOPIC "socket/%06x/in"
+#define DEFAULT_MQTT_OUTTOPIC "socket/%06x/out"
+#define DEFAULT_MQTT_TOPIC_VOLTAGE "socket/%06x/voltage"
+#define DEFAULT_MQTT_TOPIC_CURRENT "socket/%06x/current"
+#define DEFAULT_MQTT_TOPIC_POWER "socket/%06x/power"
+#define DEFAULT_MQTT_TOPIC_JSON "socket/%06x/json"
 #define DEFAULT_MQTT_SENDING_INTERVAL 60
 
 #define DEFAULT_SYSLOG_ENABLED false

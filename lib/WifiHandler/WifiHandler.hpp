@@ -24,6 +24,7 @@ public:
   int getConnectCounter();
   const char* getMacAddress();
   const char* getPhyMode();
+  const char *getHostname();
 };
 
 extern WifiHandler wifiHandler;

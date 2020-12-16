@@ -3,44 +3,42 @@
 
 #include <App.hpp>
 #include <DefaultAppConfig.h>
-#include <ESPAsyncWebServer.h>
-
-#include "template-html.h"
-#include "layout-css-gz.h"
-#include "pure-min-css-gz.h"
+#include <ESP8266WebServer.h>
 
 #define JSON_RELAY_ON    1
 #define JSON_RELAY_OFF   2
 #define JSON_RELAY_STATE 3
 
-void prGroupLabel( AsyncResponseStream *response, int id, const char *label );
-void prLegend(AsyncResponseStream *response, const char *name);
-bool paramBool(AsyncWebServerRequest *request, const char *paramName);
-void prTextGroupReadOnly( AsyncResponseStream *response, int id, const char *label,
-  const char *value );
-   
-void handleRootPage(AsyncWebServerRequest *request);
-void handleInfoPage(AsyncWebServerRequest *request);
-void handleSetupPage(AsyncWebServerRequest *request);
-void handleSavePage(AsyncWebServerRequest *request);
+extern ESP8266WebServer server;
 
-void handleJsonStatus(AsyncWebServerRequest *request, int json_state );
-void handleJsonInfo(AsyncWebServerRequest *request );
-void handleBackupConfiguration(AsyncWebServerRequest *request );
-void handleRestoreConfiguration(AsyncWebServerRequest *request );
-void handleRestoreConfigurationCB(AsyncWebServerRequest *request, String filename,
-                            size_t index, uint8_t *data, size_t len,
-                            bool final);
+extern const char header_html[];
+extern const char header2_html[];
+extern const char footer_html[];
 
-void handleMaintenanceSetupPage(AsyncWebServerRequest *request);
+extern void handleRootPage();
+extern void handleInfoPage();
+extern void handleSetupPage();
+extern void handleMaintenancePage();
+extern void handleSaveConfigPage();
+extern void handleBackupConfiguration();
+extern void handleRestoreConfiguration();
+extern void handleConfigFileUpload();
+extern void handleFirmwareUpload();
+extern void handleFirmwareUploadSuccess();
+extern void handleResetFirmware();
+extern void handleSystemRestart();
+extern void handleJsonStatusOn();
+extern void handleJsonStatusOff();
+extern void handleJsonStatusState();
 
-void handleCssFile(AsyncWebServerRequest *request, const uint8_t *data, size_t length );
-
-void handleUpdateFirmware(AsyncWebServerRequest *request);
-void handleUpdateProgressCB(AsyncWebServerRequest *request, String filename,
-                               size_t index, uint8_t *data, size_t len,
-                               bool final);
-
-void handleResetFirmware(AsyncWebServerRequest *request);
+extern void sendAuthentication();
+extern void sendHeaderNoCache();
+extern void sendHeader(const char *title);
+extern void sendHeader(const char *title, bool sendMetaRefresh);
+extern void sendHeader(const char *title, bool sendMetaRefresh, const char *style);
+extern void sendFooter();
+extern void sendPrintf(const char *format, ...);
+extern void sendPrint(const char *message);
+extern void sendLegend(const char *name);
 
 #endif

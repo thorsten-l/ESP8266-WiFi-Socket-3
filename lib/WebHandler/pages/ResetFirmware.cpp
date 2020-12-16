@@ -1,35 +1,22 @@
-#include "pages/Pages.h"
+#include "Pages.h"
 
-
-void handleResetFirmware(AsyncWebServerRequest *request)
+void handleResetFirmware()
 {
-  if (!request->authenticate("admin", appcfg.admin_password))
+  sendAuthentication();
+  sendHeader(APP_NAME " - Reset Firmware", true);
+  sendPrint("<form class='pure-form'>");
+  sendLegend("Reset Firmware.");
+
+  if (strcmp("true", server.arg(0).c_str()) == 0)
   {
-    return request->requestAuthentication();
-  }
-
-  bool doReset = paramBool( request, "doreset" );
-
-  AsyncResponseStream *response = request->beginResponseStream("text/html");
-  response->print(TEMPLATE_HEADER);
-  response->print(META_REFRESH);
-  response->printf(TEMPLATE_BODY, APP_NAME " - Firmware Reset");
-  response->addHeader("Cache-Control", "no-cache, no-store, must-revalidate");
-  response->addHeader("Pragma", "no-cache");
-  response->addHeader("Expires", "0");
-
-  if( doReset == true )
-  {
-    response->print(F("<h3>"));
-    response->print(F("Resetting firmware... restart in about 15sec."));
-    response->print(F("</h3>"));
+    sendPrint("<h4>Resetting firmware... restart takes about 30sec.</h4>");
     app.firmwareReset();
   }
   else
   {
-    response->print(F("If you really want to reset to system defaults, you must select 'Yes' in the setup page."));
+    sendPrint("If you really want to reset to system defaults, you must select 'Yes' on the maintenance page.");
   }
-  
-  response->print(TEMPLATE_FOOTER);
-  request->send(response);
+
+  sendPrint("</form>");
+  sendFooter();
 }

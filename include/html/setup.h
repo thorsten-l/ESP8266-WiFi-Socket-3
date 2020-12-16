@@ -1,31 +1,7 @@
 #include <App.hpp>
 
-const char SETUP_HTML[] PROGMEM =
-  "<!DOCTYPE html>\n"
-  "<html>\n"
-  "<head>\n"
+const char SETUP_HTML_TEMPLATE[] PROGMEM =
   "<!-- %millis% -->\n"
-  "<meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\">\n"
-  "<title>WIFI SOCKET II - SETUP</title>\n"
-  "<link rel=\"stylesheet\" href=\"/pure-min.css\">\n"
-  "<link rel=\"stylesheet\" href=\"/layout.css\">\n"
-  "</head>\n"
-  "<body>\n"
-  "<div class=\"custom-menu-wrapper\">\n"
-  "<div class=\"pure-menu custom-menu custom-menu-top\">\n"
-  "<div id=\"brand-title\" class=\"pure-menu-heading custom-menu-brand\">WiFi Socket II - Setup</div><a href=\"#\" class=\"custom-menu-toggle\" id=\"toggle\"><s class=\"bar\"></s><s class=\"bar\"></s></a></div>\n"
-  "<div class=\"pure-menu pure-menu-horizontal pure-menu-scrollable custom-menu custom-menu-bottom custom-menu-tucked\" id=\"tuckedMenu\">\n"
-  "<div class=\"custom-menu-screen\"></div>\n"
-  "<ul class=\"pure-menu-list\">\n"
-  "<li class=\"pure-menu-item\"><a href=\"/\" class=\"pure-menu-link\">Home</a></li>\n"
-  "<li class=\"pure-menu-item\"><a href=\"/setup.html\" class=\"pure-menu-link\">Setup</a></li>\n"
-  "<li class=\"pure-menu-item\"><a href=\"/maintenance.html\" class=\"pure-menu-link\">Maintenance</a></li>"
-  "<li class=\"pure-menu-item\"><a href=\"/info.html\" class=\"pure-menu-link\">Info</a></li>\n"
-  "</ul>\n"
-  "</div>\n"
-  "</div>\n"
-  "<div class=\"main\">\n"
-  "<div class=\"content\">\n"
   "<form class=\"pure-form pure-form-aligned\" action=\"savecfg\" method=\"POST\">\n"
 
 #if defined(POWER_BUTTON_IS_MULTIMODE) || defined(WIFI_LED)
@@ -74,10 +50,6 @@ const char SETUP_HTML[] PROGMEM =
   "<div class='panel sub-panel'>\n"
     "<div class=\"pure-control-group\"><label for=\"pgid0\">Password</label><input id=\"pgid0\" type=\"text\" name=\"admin_password\" maxlength=\"64\" value=\"%admin_password%\"></div>\n"
   "</div>\n"
-  "<div class='accordion'>Over The Air - firmware update (OTA)</div>\n"
-  "<div class='panel sub-panel'>\n"
-    "<div class=\"pure-control-group\"><label for=\"pgid10\">Password</label><input id=\"pgid10\" type=\"text\" name=\"ota_password\" maxlength=\"64\" value=\"%ota_password%\"></div>\n"
-  "</div>\n"
   "</fieldset></div>\n"
 
   "<div class='accordion'>Network</div>\n"
@@ -110,6 +82,12 @@ const char SETUP_HTML[] PROGMEM =
   "<div class='panel'>\n"
   "<fieldset>\n"
 
+  "<div class='accordion'>Over The Air - firmware update (OTA)</div>\n"
+  "<div class='panel sub-panel'>\n"
+    "<div class=\"pure-control-group\"><label for=\"ogid01\">Enabled</label><input id=\"ogid01\" type=\"checkbox\" name=\"ota_enabled\" value=\"true\" %ota_enabled%></div>\n"
+    "<div class=\"pure-control-group\"><label for=\"ogid02\">Password</label><input id=\"ogid02\" type=\"text\" name=\"ota_password\" maxlength=\"64\" value=\"%ota_password%\"></div>\n"
+  "</div>\n"
+
   "<div class='accordion'>OpenHAB</div>\n"
   "<div class='panel sub-panel'>\n"
     "<div class=\"pure-control-group\"><label for=\"pgid11\">Callback Enabled</label><input id=\"pgid11\" type=\"checkbox\" name=\"ohab_enabled\" value=\"true\" %ohab_enabled%></div>\n"
@@ -128,11 +106,13 @@ const char SETUP_HTML[] PROGMEM =
 #endif
     "</div>\n"
 
+/*
   "<div class='accordion'>Alexa</div>\n"
   "<div class='panel sub-panel'>\n"
     "<div class=\"pure-control-group\"><label for=\"pgid19\">Enabled</label><input id=\"pgid19\" type=\"checkbox\" name=\"alexa_enabled\" value=\"true\" %alexa_enabled%></div>\n"
     "<div class=\"pure-control-group\"><label for=\"pgid20\">Devicename</label><input id=\"pgid20\" type=\"text\" name=\"alexa_devicename\" maxlength=\"64\" value=\"%alexa_devicename%\"></div>\n"
   "</div>\n"
+*/
 
   "<div class='accordion'>MQTT</div>\n"
   "<div class='panel sub-panel'>\n"
@@ -167,22 +147,4 @@ const char SETUP_HTML[] PROGMEM =
   "</form>\n"
 
   "<p>&nbsp;</p>\n"
-  "</div>\n"
-  "<script>\n"
-  "(function(window, document) {"
-  "document.getElementById('toggle').addEventListener('click', function(e) {"
-  "document.getElementById('tuckedMenu').classList.toggle('custom-menu-tucked');"
-  "document.getElementById('toggle').classList.toggle('x');"
-  "});"
-  "})(this, this.document);"
-  "</script>\n"
-      "<script type='text/javascript'>\n"
-        "var i, acc = document.getElementsByClassName('accordion');"
-        "for (i = 0; i < acc.length; i++) acc[i].addEventListener('click', function() {"
-            "this.classList.toggle('active');"
-            "var e = this.nextElementSibling;"
-            "'block' === e.style.display ? e.style.display = 'none' : e.style.display = 'block'"
-        "});"
-    "</script>\n"
-  "</body>\n"
-  "</html>\n";
+;

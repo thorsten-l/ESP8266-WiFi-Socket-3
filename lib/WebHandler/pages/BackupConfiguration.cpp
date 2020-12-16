@@ -1,16 +1,15 @@
-#include "pages/Pages.h"
+#include "Pages.h"
 #include <FS.h>
+#include <LittleFS.h>
 
-void handleBackupConfiguration(AsyncWebServerRequest *request)
+void handleBackupConfiguration()
 {
-  if (!request->authenticate("admin", appcfg.admin_password))
-  {
-    return request->requestAuthentication();
-  }
-  
-  SPIFFS.begin();
-  AsyncWebServerResponse *response = request->beginResponse( SPIFFS, APP_CONFIG_FILE_JSON );
-  response->setContentType("application/json");
-  request->send(response);
-  SPIFFS.end();
+  sendAuthentication();
+  server.sendHeader( "Content-Disposition", 
+    "attachment; filename=\"" APP_CONFIG_FILE_JSON "\"");
+  LittleFS.begin();
+  File configFile = LittleFS.open( APP_CONFIG_FILE_JSON, "r");
+  server.streamFile(configFile, "application/json");
+  configFile.close();
+  LittleFS.end();
 }

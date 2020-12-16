@@ -1,12 +1,13 @@
 #include <App.hpp>
-#include "pages/Pages.h"
 #include <RelayHandler.hpp>
 #include <Hlw8012Handler.hpp>
 #include <WifiHandler.hpp>
-  
-static char msgBuffer[2048];
+#include <ESP8266WebServer.h>
+#include "Pages.h"
 
-void handleJsonStatus(AsyncWebServerRequest *request, int json_state)
+extern ESP8266WebServer server;
+
+void handleJsonStatus(int json_state)
 {
   bool powerIsOn;
 
@@ -49,90 +50,24 @@ void handleJsonStatus(AsyncWebServerRequest *request, int json_state)
 #endif
 
   message += "}\r\n";
-
-  AsyncWebServerResponse *response =
-      request->beginResponse(200, "application/json", message);
-  response->addHeader("Access-Control-Allow-Origin", "*");
-  response->addHeader("Cache-Control", "no-cache, no-store, must-revalidate");
-  response->addHeader("Pragma", "no-cache");
-  response->addHeader("Expires", "0");
-  request->send(response);
+  server.sendHeader("Access-Control-Allow-Origin", "*");
+  sendHeaderNoCache();
+  server.send(200, "application/json", message);
 }
 
-void handleJsonInfo(AsyncWebServerRequest *request)
+void handleJsonStatusOn()
 {
-  sprintf(msgBuffer,
-          "{"
-          "\"host_name\":\"%s\","
-          "\"pioenv_name\":\"%s\","
-          "\"esp_full_version\":\"%s\","
-          "\"esp_core_version\":\"%s\","
-          "\"esp_sdk_version\":\"%s\","
-          "\"chip_id\":\"%08X\","
-          "\"cpu_freq\":\"%dMhz\","
-          "\"flash_size\":%u,"
-          "\"flash_speed\":%u,"
-          "\"ide_size\":%u,"
-          "\"fw_name\":\"%s\","
-          "\"fw_version\":\"%s\","
-          "\"build_date\":\"%s\","
-          "\"build_time\":\"%s\","
+  relayHandler.delayedOn();
+  handleJsonStatus(JSON_RELAY_ON);
+}
 
-          "\"wifi_ssid\":\"%s\","
-          "\"wifi_reconnect_counter\":%d,"
-          "\"wifi_channel\":%d,"
-          "\"wifi_phy_mode\":\"%s\","
-          "\"wifi_mac_address\":\"%s\","
-          "\"wifi_hostname\":\"%s\","
-          "\"wifi_ip_address\":\"%s\","
-          "\"wifi_gateway_ip\":\"%s\","
-          "\"wifi_subnet_mask\":\"%s\","
-          "\"wifi_dns_ip\":\"%s\","
+void handleJsonStatusOff()
+{
+  relayHandler.delayedOff();
+  handleJsonStatus(JSON_RELAY_OFF);
+}
 
-          "\"spiffs_total\":%u,"
-          "\"spiffs_used\":%u,"
-          "\"free_heap\":%u,"
-          "\"sketch_size\":%u,"
-          "\"free_sketch_space\":%u,"
-          "\"power_button_state\": %d"
-          "}",
-          appcfg.ota_hostname, 
-          PIOENV_NAME, 
-
-          ESP.getFullVersion().c_str(), 
-          ESP.getCoreVersion().c_str(), 
-          ESP.getSdkVersion(), 
-
-          ESP.getChipId(),
-          ESP.getCpuFreqMHz(), ESP.getFlashChipRealSize(),
-          ESP.getFlashChipSpeed(), ESP.getFlashChipSize(), APP_NAME,
-          APP_VERSION, __DATE__, __TIME__, 
-          
-          appcfg.wifi_ssid,
-          wifiHandler.getConnectCounter(),
-          WiFi.channel(),
-          wifiHandler.getPhyMode(),
-          wifiHandler.getMacAddress(),
-          WiFi.hostname().c_str(),
-          WiFi.localIP().toString().c_str(),
-          WiFi.gatewayIP().toString().c_str(),
-          WiFi.subnetMask().toString().c_str(),
-          WiFi.dnsIP().toString().c_str(),
-
-          app.fsTotalBytes, app.fsUsedBytes,
-          ESP.getFreeHeap(), ESP.getSketchSize(), ESP.getFreeSketchSpace(),
-          digitalRead(POWER_BUTTON)
-          );
-
-  String message(msgBuffer);
-
-  AsyncWebServerResponse *response =
-      request->beginResponse(200, "application/json", message);
-
-  response->addHeader("Access-Control-Allow-Origin", "*");
-  response->addHeader("Cache-Control", "no-cache, no-store, must-revalidate");
-  response->addHeader("Pragma", "no-cache");
-  response->addHeader("Expires", "0");
-
-  request->send(response);
+void handleJsonStatusState()
+{
+  handleJsonStatus(JSON_RELAY_STATE);
 }

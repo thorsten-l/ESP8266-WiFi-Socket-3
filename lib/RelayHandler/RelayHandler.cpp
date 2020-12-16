@@ -1,8 +1,6 @@
 #include <App.hpp>
-#include <fauxmoESP.h>
 #include <OpenHabHandler.hpp>
 #include <MqttHandler.hpp>
-#include <AlexaHandler.hpp>
 #include <Syslog.hpp>
 #include "RelayHandler.hpp"
 
@@ -37,7 +35,6 @@ void RelayHandler::on()
 
     openHabHandler.sendValue("ON");
     mqttHandler.sendValue( appcfg.mqtt_outtopic, "ON");
-    alexaHandler.sendValue(true);
     syslog.logInfo( "power on" );
   }
 }
@@ -64,7 +61,6 @@ void RelayHandler::off()
 
     openHabHandler.sendValue("OFF");
     mqttHandler.sendValue( appcfg.mqtt_outtopic, "OFF");
-    alexaHandler.sendValue(false);
     syslog.logInfo( "power off" );
   }
 }

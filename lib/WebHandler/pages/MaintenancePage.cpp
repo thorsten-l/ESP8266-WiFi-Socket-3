@@ -1,25 +1,20 @@
-#include "maintenance-html.h"
-#include "pages/Pages.h"
-#include <LinkedList.hpp>
-#include <WifiHandler.hpp>
+#include <Arduino.h>
+#include <App.hpp>
+#include <Util.hpp>
+#include <html/maintenance.h>
+#include "Pages.h"
 
-String maintenanceProcessor(const String &var) {
-  // Firmware upload
-  if (var == "pioenv_name")
-    return String(PIOENV_NAME);
-
-  return String();
+static const char *setupProcessor(const char *var)
+{
+  if (strcmp(var, "pioenv_name") == 0)
+    return PIOENV_NAME;
+  return nullptr;
 }
 
-void handleMaintenanceSetupPage(AsyncWebServerRequest *request) {
-  if (!request->authenticate("admin", appcfg.admin_password)) {
-    return request->requestAuthentication();
-  }
-
-  AsyncWebServerResponse *response = request->beginResponse_P(
-      200, "text/html", MAINTENANCE_HTML, maintenanceProcessor);
-  response->addHeader("Cache-Control", "no-cache, no-store, must-revalidate");
-  response->addHeader("Pragma", "no-cache");
-  response->addHeader("Expires", "0");
-  request->send(response);
+void handleMaintenancePage()
+{
+  sendAuthentication();
+  sendHeader(APP_NAME " - Maintenance", false, MAINTENANCE_STYLE);
+  sendHtmlTemplate(MAINTENANCE_HTML_TEMPLATE, setupProcessor);
+  sendFooter();
 }

@@ -99,11 +99,7 @@ void MqttHandler::handle( unsigned long now)
       if (now - lastReconnectAttempt > 5000)
       {
         lastReconnectAttempt = now;
-
-        if (reconnect())
-        {
-          lastReconnectAttempt = 0;
-        }
+        reconnect();
       }
     }
     else

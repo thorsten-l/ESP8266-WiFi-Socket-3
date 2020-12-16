@@ -11,6 +11,7 @@
 #define A_net_gateway "net_gateway"
 #define A_net_dns "net_dns"
 
+#define A_ota_enabled "ota_enabled"
 #define A_ota_hostname "ota_hostname"
 #define A_ota_password "ota_password"
 

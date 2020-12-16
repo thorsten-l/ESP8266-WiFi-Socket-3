@@ -269,3 +269,8 @@ const char *WifiHandler::getPhyMode()
 {
   return phyModes[WiFi.getPhyMode() - 1];
 }
+
+const char *WifiHandler::getHostname()
+{
+  return appcfg.ota_hostname;
+}

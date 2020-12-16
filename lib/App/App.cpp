@@ -1,51 +1,50 @@
 #include "App.hpp"
 #include "DefaultAppConfig.h"
 #include <FS.h>
+#include <LittleFS.h>
 #include <MicroJson.hpp>
+#include <Util.hpp>
+#include <Development.h>
+
+struct tm appTimeinfo;
+char appUptimeBuffer[64];
+char appLocalIpBuffer[32];
+char appDateTimeBuffer[32];
 
 App app;
 AppConfig appcfg;
 AppConfig appcfgWR;
 AppConfig appcfgRD;
 
-static void showChipInfo()
+char *formatChipId( char *attribute )
 {
-  Serial.println("-- CHIPINFO --");
-  Serial.printf("Chip Id = %08X\n", ESP.getChipId());
+  snprintf( buffer, 63, attribute, ESP.getChipId());
+  buffer[63]= 0;
+  strncpy(attribute,buffer,63);
+  return attribute;
+}
 
-  Serial.printf("CPU Frequency = %dMHz\n", ESP.getCpuFreqMHz());
+const char *appUptime()
+{
+  time_t uptime = millis() / 1000;
+  int uptimeSeconds = uptime % 60;
+  int uptimeMinutes = (uptime / 60) % 60;
+  int uptimeHours = (uptime / 3600) % 24;
+  time_t uptimeDays = (uptime / 86400);
+  sprintf(appUptimeBuffer, "%ld days, %d hours, %d minutes, %d seconds", uptimeDays, uptimeHours, uptimeMinutes,
+          uptimeSeconds);
+  return appUptimeBuffer;
+}
 
-  uint32_t realSize = ESP.getFlashChipRealSize();
-  uint32_t ideSize = ESP.getFlashChipSize();
-  FlashMode_t ideMode = ESP.getFlashChipMode();
-
-  Serial.printf("\nFlash real id:   %08X\n", ESP.getFlashChipId());
-  Serial.printf("Flash real size: %u\n", realSize);
-  Serial.printf("Flash ide  size: %u\n", ideSize);
-  Serial.printf("Flash chip speed: %u\n", ESP.getFlashChipSpeed());
-  Serial.printf("Flash ide mode:  %s\n",
-                (ideMode == FM_QIO
-                     ? "QIO"
-                     : ideMode == FM_QOUT
-                           ? "QOUT"
-                           : ideMode == FM_DIO
-                                 ? "DIO"
-                                 : ideMode == FM_DOUT ? "DOUT" : "UNKNOWN"));
-
-  if (ideSize != realSize)
-  {
-    Serial.println("Flash Chip configuration wrong!\n");
-  }
-  else
-  {
-    Serial.println("Flash Chip configuration ok.\n");
-  }
-
-  Serial.printf("Free Heap         : %u\n", ESP.getFreeHeap());
-  Serial.printf("Sketch Size       : %u\n", ESP.getSketchSize());
-  Serial.printf("Free Sketch Space : %u\n", ESP.getFreeSketchSpace());
-
-  Serial.println();
+void appShowHeader(Stream &out)
+{
+  out.println("\n\n" APP_NAME " - " APP_VERSION " - " APP_AUTHOR);
+  out.println("BUILD: " __DATE__ " " __TIME__);
+  out.println("PIOENV: " PIOENV);
+  out.println("PIOPLATFORM: " PIOPLATFORM);
+  out.println("PIOFRAMEWORK: " PIOFRAMEWORK);
+  out.printf("ESP SDK Version: %s\n", ESP.getSdkVersion());
+  out.printf("ESP Core Version: %s\n\n", ESP.getCoreVersion().c_str());
 }
 
 App::App()
@@ -135,11 +134,11 @@ void App::defaultConfig()
 
 void App::firmwareReset()
 {
-  if (SPIFFS.begin())
+  if (LittleFS.begin())
   {
     LOG0("Removing init file\n");
-    SPIFFS.remove(initFilename);
-    SPIFFS.end();
+    LittleFS.remove(initFilename);
+    LittleFS.end();
   }
   delayedSystemRestart();
 }
@@ -149,12 +148,12 @@ void App::formatSPIFFS()
   wifiLedOn();
   ESP.eraseConfig();
 
-  if (SPIFFS.begin())
+  if (LittleFS.begin())
   {
     LOG0("File system format started...\n");
-    SPIFFS.format();
+    LittleFS.format();
     LOG0("File system format finished.\n");
-    SPIFFS.end();
+    LittleFS.end();
   }
   else
   {
@@ -230,9 +229,9 @@ void App::setup()
 
   showChipInfo();
 
-  if (SPIFFS.begin())
+  if (LittleFS.begin())
   {
-    if (SPIFFS.exists(initFilename))
+    if (LittleFS.exists(initFilename))
     {
       LOG1("Init file %s found.\n", initFilename);
       initSPIFFS = false;
@@ -243,7 +242,7 @@ void App::setup()
       initSPIFFS = true;
     }
 
-    SPIFFS.end();
+    LittleFS.end();
   }
   else
   {
@@ -273,13 +272,13 @@ void App::setup()
   {
     formatSPIFFS();
 
-    if (SPIFFS.begin())
+    if (LittleFS.begin())
     {
       LOG0("writing init file\n");
-      File initFile = SPIFFS.open(initFilename, "w");
+      File initFile = LittleFS.open(initFilename, "w");
       initFile.write("true");
       initFile.close();
-      SPIFFS.end();
+      LittleFS.end();
     }
 
     restartSystem();
@@ -288,18 +287,33 @@ void App::setup()
   ESP.eraseConfig();
   memcpy(&appcfgRD, &appcfg, sizeof(appcfg));
   loadConfig();
+
+///////////////////////////////////////////////////////////////
+#ifdef OVERRIDE_WIFI_SETTINGS
+  appcfg.wifi_mode = OVERRIDE_WIFI_MODE;
+  strcpy( appcfg.wifi_ssid, OVERRIDE_WIFI_SSID );
+  strcpy( appcfg.wifi_password, OVERRIDE_WIFI_PASSWORD );
+  appcfg.ota_enabled = OVERRIDE_OTA_ENABLED;
+#endif
+///////////////////////////////////////////////////////////////
+  
+  formatChipId( appcfg.ota_hostname );
+  formatChipId( appcfg.mqtt_clientid );
+  formatChipId( appcfg.mqtt_intopic );
+  formatChipId( appcfg.mqtt_outtopic );
+
   memcpy(&appcfgWR, &appcfg, sizeof(appcfg));
 }
 
 void App::loadConfig()
 {
-  if (!SPIFFS.begin())
+  if (!LittleFS.begin())
   {
     LOG0("ERROR: Failed to mount file system");
   }
   else
   {
-    if (SPIFFS.exists(APP_CONFIG_FILE_JSON))
+    if (LittleFS.exists(APP_CONFIG_FILE_JSON))
     {
       if (loadJsonConfig(APP_CONFIG_FILE_JSON) == false)
       {
@@ -315,20 +329,20 @@ void App::loadConfig()
       LOG0("WARNING: appcfg file " APP_CONFIG_FILE_JSON
            " does not exist. Using default appcfg.\n");
     }
-    SPIFFS.end();
+    LittleFS.end();
   }
 }
 
 void App::writeConfig()
 {
-  if (!SPIFFS.begin())
+  if (!LittleFS.begin())
   {
     LOG0("ERROR: Failed to mount file system");
   }
   else
   {
     LOG0("Writing " APP_CONFIG_FILE_JSON " file.\n");
-    File configJson = SPIFFS.open(APP_CONFIG_FILE_JSON, "w");
+    File configJson = LittleFS.open(APP_CONFIG_FILE_JSON, "w");
     uJson j = uJson(configJson);
 
     j.writeHeader();
@@ -342,6 +356,7 @@ void App::writeConfig()
     j.writeEntry(A_net_gateway, appcfgWR.net_gateway);
     j.writeEntry(A_net_dns, appcfgWR.net_dns);
 
+    j.writeEntry(A_ota_enabled, appcfgWR.ota_enabled);
     j.writeEntry(A_ota_hostname, appcfgWR.ota_hostname);
     j.writeEntry(A_ota_password, appcfgWR.ota_password);
 
@@ -404,7 +419,7 @@ void App::writeConfig()
     configJson.close();
 
     FSInfo fs_info;
-    SPIFFS.info(fs_info);
+    LittleFS.info(fs_info);
 
     fsTotalBytes = fs_info.totalBytes;
     fsUsedBytes = fs_info.usedBytes;
@@ -417,7 +432,7 @@ void App::writeConfig()
     Serial.printf("max open files = %d\n", fs_info.maxOpenFiles);
     Serial.printf("max path length = %d\n", fs_info.maxPathLength);
 
-    SPIFFS.end();
+    LittleFS.end();
   }
 }
 
@@ -440,6 +455,7 @@ void App::printConfig(AppConfig ac)
   Serial.printf("    netmask: %s\n", ac.net_mask);
   Serial.printf("    dns server: %s\n", ac.net_dns);
   Serial.println("\n  OTA:");
+  Serial.printf("    Enabled: %s\n", (ac.ota_enabled ? "true" : "false"));
   Serial.printf("    Hostname: %s\n", ac.ota_hostname);
   Serial.printf("    Password: %s\n", ac.ota_password);
   Serial.println("\n  OpenHAB:");
@@ -543,7 +559,7 @@ bool App::loadJsonConfig(const char *filename)
   bool readError = false;
   char attributeName[128];
 
-  File tmpConfig = SPIFFS.open(filename, "r");
+  File tmpConfig = LittleFS.open(filename, "r");
 
   uJson j = uJson(tmpConfig);
 
@@ -563,6 +579,7 @@ bool App::loadJsonConfig(const char *filename)
       readError |= j.readEntryChars(attributeName, A_net_gateway, appcfgRD.net_gateway);
       readError |= j.readEntryChars(attributeName, A_net_dns, appcfgRD.net_dns);
 
+      readError |= j.readEntryBoolean(attributeName, A_ota_enabled, &appcfgRD.ota_enabled);
       readError |= j.readEntryChars(attributeName, A_ota_hostname, appcfgRD.ota_hostname);
       readError |= j.readEntryChars(attributeName, A_ota_password, appcfgRD.ota_password);
 

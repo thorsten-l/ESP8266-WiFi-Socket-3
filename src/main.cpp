@@ -1,7 +1,5 @@
 #include <Arduino.h>
 #include <App.hpp>
-#include <fauxmoESP.h>
-#include <AlexaHandler.hpp>
 #include <OpenHabHandler.hpp>
 #include <MqttHandler.hpp>
 #include <OtaHandler.hpp>
@@ -131,7 +129,6 @@ void loop()
   {
     otaHandler.handle();
     webHandler.handle();
-    alexaHandler.handle();
     openHabHandler.handle(thisLoopTimestamp);
     mqttHandler.handle(thisLoopTimestamp);
   }

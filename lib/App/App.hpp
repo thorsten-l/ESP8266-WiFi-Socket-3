@@ -30,6 +30,8 @@
 #define INET_CHECK_ACTION_SHOW_CONNECTION_STATE 5
 #define INET_CHECK_ACTION_SHOW_CONNECTION_STATE_INV 6
 
+extern const char *appUptime();
+
 typedef struct appconfig
 {
   char wifi_ssid[64];
@@ -42,6 +44,7 @@ typedef struct appconfig
   char net_gateway[64];
   char net_dns[64];
 
+  bool ota_enabled;
   char ota_hostname[64];
   char ota_password[64];
 

@@ -1,16 +1,175 @@
 #include "WebHandler.hpp"
-#include "pages/Pages.h"
-#include "favicon_ico.h"
+#include <App.hpp>
+#include <Arduino.h>
+#include <ESP8266WebServer.h>
+#include <ESP8266WiFi.h>
 #include <ESP8266mDNS.h>
-#include <AlexaHandler.hpp>
+#include <Esp.h>
+#include <FS.h>
+#include <LittleFS.h>
+#include <OtaHandler.hpp>
+#include <Util.hpp>
+#include <WifiHandler.hpp>
+
+#include "pages/Pages.h"
+
 #include <RelayHandler.hpp>
 
-WebHandler webHandler;
-static AsyncWebServer server(80);
+#include <html/footer.h>
+#include <html/header.h>
+#include <html/header2.h>
+#include <html/header3.h>
+#include <html/setup.h>
+#include <html/favicon_ico.h>
 
-void captivePortal(AsyncWebServerRequest *request)
+size_t fsTotalBytes;
+size_t fsUsedBytes;
+
+WebHandler webHandler;
+ESP8266WebServer server(80);
+
+const char *getJsonStatus(WiFiClient *client)
 {
-  request->redirect("http://wifi.socket/captive.html");
+  int remotePort = 0;
+  char remoteAddress[32] = {0};
+
+  if (client != NULL)
+  {
+    remotePort = client->remotePort();
+    strncpy(remoteAddress, client->remoteIP().toString().c_str(), 31);
+  }
+  else
+  {
+    remotePort = server.client().remotePort();
+    strncpy(remoteAddress, server.client().remoteIP().toString().c_str(), 31);
+  }
+
+  sprintf(buffer,
+          "{"
+          "\"millis\":%lu,"
+          "\"uptime\":\"%s\","
+          "\"host_name\":\"%s.local\","
+          "\"esp_full_version\":\"%s\","
+          "\"esp_core_version\":\"%s\","
+          "\"esp_sdk_version\":\"%s\","
+          "\"platformio_env\":\"%s\","
+          "\"platformio_platform\":\"%s\","
+          "\"platformio_framework\":\"%s\","
+          "\"arduino_board\":\"%s\","
+          "\"chip_id\":\"%08X\","
+          "\"cpu_freq\":\"%dMhz\","
+          "\"flash_size\":%u,"
+          "\"flash_speed\":%u,"
+          "\"ide_size\":%u,"
+          "\"fw_name\":\"%s\","
+          "\"fw_version\":\"%s\","
+          "\"build_date\":\"%s\","
+          "\"build_time\":\"%s\","
+          "\"wifi_ssid\":\"%s\","
+          "\"wifi_reconnect_counter\":%d,"
+          "\"wifi_channel\":%d,"
+          "\"wifi_phy_mode\":\"%s\","
+          "\"wifi_mac_address\":\"%s\","
+          "\"wifi_hostname\":\"%s\","
+          "\"wifi_ip_address\":\"%s\","
+          "\"wifi_gateway_ip\":\"%s\","
+          "\"wifi_subnet_mask\":\"%s\","
+          "\"wifi_dns_ip\":\"%s\","
+          "\"spiffs_total\":%u,"
+          "\"spiffs_used\":%u,"
+          "\"free_heap\":%u,"
+          "\"sketch_size\":%u,"
+          "\"free_sketch_space\":%u,"
+          "\"remote_client_ip\":\"%s\","
+          "\"remote_client_port\":%u"
+          "}",
+          millis(), appUptime(), wifiHandler.getHostname(),
+          ESP.getFullVersion().c_str(), ESP.getCoreVersion().c_str(), ESP.getSdkVersion(), PIOENV, PIOPLATFORM,
+          PIOFRAMEWORK, ARDUINO_BOARD, ESP.getChipId(), ESP.getCpuFreqMHz(), ESP.getFlashChipRealSize(),
+          ESP.getFlashChipSpeed(), ESP.getFlashChipSize(), APP_NAME, APP_VERSION, __DATE__, __TIME__, appcfg.wifi_ssid,
+          wifiHandler.getConnectCounter(), WiFi.channel(), wifiHandler.getPhyMode(), wifiHandler.getMacAddress(),
+          WiFi.hostname().c_str(), WiFi.localIP().toString().c_str(), WiFi.gatewayIP().toString().c_str(),
+          WiFi.subnetMask().toString().c_str(), WiFi.dnsIP().toString().c_str(), fsTotalBytes, fsUsedBytes,
+          ESP.getFreeHeap(), ESP.getSketchSize(), ESP.getFreeSketchSpace(), remoteAddress, remotePort);
+
+  return buffer;
+}
+
+
+
+void sendHeader(const char *title, bool sendMetaRefresh, const char *style)
+{
+  server.sendHeader("Access-Control-Allow-Origin", "*");
+  server.chunkedResponseModeStart(200, "text/html");
+  server.sendContent_P(header_html);
+
+  if (sendMetaRefresh)
+  {
+    server.sendContent_P(META_REFRESH30);
+  }
+
+  if (style != nullptr)
+  {
+    server.sendContent_P(style);
+  }
+
+  sprintf(buffer, "<title>%s</title>\n", title);
+  server.sendContent(buffer);
+  server.sendContent_P(header2_html);
+  server.sendContent(title);
+  server.sendContent_P(header3_html);
+}
+
+void sendHeader(const char *title, bool sendMetaRefresh)
+{
+  sendHeader(title, sendMetaRefresh, nullptr);
+}
+
+void sendHeader(const char *title)
+{
+  sendHeader(title, false);
+}
+
+void sendHeaderNoCache()
+{
+  server.sendHeader("Cache-Control", "no-cache, no-store, must-revalidate");
+  server.sendHeader("Pragma", "no-cache");
+  server.sendHeader("Expires", "0");
+}
+
+void sendAuthentication()
+{
+  if (!server.authenticate("admin", appcfg.admin_password))
+  {
+    return server.requestAuthentication();
+  }
+  sendHeaderNoCache();
+}
+
+void sendFooter()
+{
+  server.sendContent_P(footer_html);
+  server.chunkedResponseFinalize();
+  server.client().stop();
+}
+
+void sendPrintf(const char *format, ...)
+{
+  va_list myargs;
+  va_start(myargs, format);
+  vsprintf(buffer, format, myargs);
+  va_end(myargs);
+  server.sendContent(buffer);
+}
+
+void sendPrint(const char *message)
+{
+  server.sendContent(message);
+}
+
+void sendLegend(const char *name)
+{
+  sendPrintf("<legend>%s</legend>", name);
 }
 
 WebHandler::WebHandler() 
@@ -22,61 +181,73 @@ void WebHandler::setup()
 {
   LOG0("HTTP server setup...\n");
 
-  server.on("/", HTTP_GET, handleRootPage);
-  server.on("/setup.html", HTTP_GET, handleSetupPage );
-  server.on("/maintenance.html", HTTP_GET, handleMaintenanceSetupPage );
-  server.on("/info.html", HTTP_GET, handleInfoPage );
-  server.on("/savecfg", HTTP_POST, handleSavePage);
-  server.on("/info", HTTP_GET, handleJsonInfo );
-  server.on("/update-firmware", HTTP_POST, handleUpdateFirmware, handleUpdateProgressCB );
-  server.on("/reset-firmware", HTTP_POST, handleResetFirmware );
+  fsTotalBytes = 0;
+  fsUsedBytes = 0;
 
-  server.on("/on", HTTP_GET, [](AsyncWebServerRequest *request) {
-    relayHandler.delayedOn();
-    handleJsonStatus( request, JSON_RELAY_ON );
+  if (LittleFS.begin())
+  {
+    FSInfo fs_info;
+    LittleFS.info(fs_info);
+    fsTotalBytes = fs_info.totalBytes;
+    fsUsedBytes = fs_info.usedBytes;
+    LittleFS.end();
+  }
+
+  server.on("/info", []() {
+    server.sendHeader("Access-Control-Allow-Origin", "*");
+    sendHeaderNoCache();
+    String message(getJsonStatus(NULL));
+    server.send(200, "application/json", message);
+    server.client().stop();
   });
+
+  server.on("/favicon.ico", []() {
+    server.sendHeader("Content-Encoding", "gzip");
+    server.sendHeader("Cache-Control", "max-age=31536000");
+    server.send( 200, "image/x-icon", FAVICON_ICO_GZ, FAVICON_ICO_GZ_LEN );
+    server.client().stop();
+  });
+
+  server.on("/on", handleJsonStatusOn );
+  server.on("/off", handleJsonStatusOff );
+  server.on("/state", handleJsonStatusState );
+  
+  server.on("/", handleRootPage);
+  server.on("/info.html", handleInfoPage);
+  server.on("/setup.html", handleSetupPage );
+  server.on("/maintenance.html", handleMaintenancePage );
+  server.on("/system-restart", handleSystemRestart );
+  server.on("/config-backup", handleBackupConfiguration);
+  server.on("/config-restore", HTTP_POST, handleRestoreConfiguration, handleConfigFileUpload);
+  server.on("/update-firmware", HTTP_POST, handleFirmwareUploadSuccess, handleFirmwareUpload);
+  server.on("/reset-firmware", handleResetFirmware);
+  server.on("/savecfg", handleSaveConfigPage);
 
   if ( appcfg.wifi_mode == WIFI_AP )
   {
-    server.on("/captive.html", HTTP_GET, [](AsyncWebServerRequest *request) {
-      request->send(200, "text/html", 
+    server.on("/captive.html", HTTP_GET, []() {
+      server.send(200, "text/html", 
         F("Please enter <b><a target='_blank' href='http://wifi.socket'>http://wifi.socket</a></b> or <b><a target='_blank' href='http://192.168.192.1'>http://192.168.192.1</a></b> into your browser."));
+      server.client().stop();
     });
   }
 
-  server.on("/off", HTTP_GET, [](AsyncWebServerRequest *request) {
-    relayHandler.delayedOff();
-    handleJsonStatus( request, JSON_RELAY_OFF );
+  server.onNotFound([]{
+    if ( appcfg.wifi_mode == WIFI_AP )
+    {
+      server.sendHeader( "Location", "http://wifi.socket/captive.html", true );
+      server.send( 302, "text/plain", "");
+      server.client().stop();
+    }
+    else
+    {
+      sprintf( buffer, "<h1>ERROR(404): Page not found.</h1>URI=%s", server.uri().c_str());
+      server.send(404, "text/html", buffer);
+      server.client().stop();
+    }
   });
 
-  server.on("/state", HTTP_GET, [](AsyncWebServerRequest *request) {
-    handleJsonStatus( request, JSON_RELAY_STATE );
-  });
-
-  server.on("/favicon.ico", HTTP_GET, [](AsyncWebServerRequest *request) {
-    AsyncWebServerResponse *response = request->beginResponse_P(200, "image/x-icon", FAVICON_ICO_GZ, FAVICON_ICO_GZ_LEN );
-    response->addHeader("Content-Encoding", "gzip");
-    response->addHeader("Cache-Control", "max-age=31536000");
-    request->send(response);
-  });
-
-  server.on("/pure-min.css", HTTP_GET, [](AsyncWebServerRequest *request) {
-    AsyncWebServerResponse *response = request->beginResponse_P(200, "text/css", PURE_MIN_CSS_GZ, PURE_MIN_CSS_GZ_LEN);
-    response->addHeader("Content-Encoding", "gzip");
-    response->addHeader("Cache-Control", "max-age=31536000");
-    request->send(response);
-  });
-
-  server.on("/layout.css", HTTP_GET, [](AsyncWebServerRequest *request) {
-    AsyncWebServerResponse *response = request->beginResponse_P(200, "text/css", LAYOUT_CSS_GZ, LAYOUT_CSS_GZ_LEN);
-    response->addHeader("Content-Encoding", "gzip");
-    response->addHeader("Cache-Control", "max-age=31536000");
-    request->send(response);
-  });
-
-  server.on("/config-backup", HTTP_GET, handleBackupConfiguration );
-  server.on("/config-restore", HTTP_POST, handleRestoreConfiguration, handleRestoreConfigurationCB );
-
+/*
   if (appcfg.alexa_enabled == true)
   {
     // These two callbacks are required for gen1 and gen3 compatibility
@@ -109,14 +280,24 @@ void WebHandler::setup()
       server.onNotFound([](AsyncWebServerRequest *request) { request->send(404); });
     }  
   }
+*/
+
+  if (appcfg.ota_enabled == false)
+  {
+    MDNS.begin(appcfg.ota_hostname);
+  }
 
   MDNS.addService("http", "tcp", 80);
   MDNS.addServiceTxt("http", "tcp", "path", "/");
   MDNS.addServiceTxt("http", "tcp", "fw_name", APP_NAME);
   MDNS.addServiceTxt("http", "tcp", "fw_version", APP_VERSION);
 
-  server.begin();
+  if (appcfg.ota_enabled == false)
+  {
+    MDNS.update();
+  }
 
+  server.begin();
   LOG0("HTTP server started\n");
   initialized = true;
 }
@@ -127,6 +308,10 @@ void WebHandler::handle()
   {
     setup();
   }
-
-  MDNS.update();
+  else
+  {
+    server.handleClient();
+    MDNS.update();
+  }
 }
+
