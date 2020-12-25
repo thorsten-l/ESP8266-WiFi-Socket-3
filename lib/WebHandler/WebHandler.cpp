@@ -16,9 +16,9 @@
 #include <uzlib.h>
 
 #include <html/header_gz.h>
-#include <html/footer.h>
-#include <html/header2.h>
-#include <html/header3.h>
+#include <html/footer_gz.h>
+#include <html/header2_gz.h>
+#include <html/header3_gz.h>
 #include <html/setup.h>
 #include <html/favicon_ico.h>
 
@@ -101,9 +101,6 @@ const char *getJsonStatus(WiFiClient *client)
   return buffer;
 }
 
-
-
-
 int sendUncompressed( const uint8_t *compressedData, const uint32_t compressedDataLength)
 {
   uzlib_init();
@@ -116,7 +113,7 @@ int sendUncompressed( const uint8_t *compressedData, const uint32_t compressedDa
     uzlib_bytesleft <<= 8;
     uzlib_bytesleft |= pgm_read_byte( compressedData + compressedDataLength - i );
   }
-  Serial.printf("decompressed file length = %u\n", uzlib_bytesleft );
+  // Serial.printf("decompressed file length = %u\n", uzlib_bytesleft );
   
   uzlib_uncompress_init(&uzLibDecompressor, buffer, BUFFER_LENGTH );
   
@@ -133,17 +130,12 @@ int sendUncompressed( const uint8_t *compressedData, const uint32_t compressedDa
     int to_read = ( uzlib_bytesleft > BUFFER2_LENGTH) ? BUFFER2_LENGTH : uzlib_bytesleft;
     uzLibDecompressor.dest_limit = (unsigned char *)buffer2 + to_read;
     uzlib_uncompress(&uzLibDecompressor);
-
-    // fwrite( buffer2, to_read, 1, fd );
     buffer2[to_read] = 0;
     server.sendContent(buffer2);
-
     uzlib_bytesleft -= to_read;
   }
   return 0;
 }
-
-
 
 void sendHeader(const char *title, bool sendMetaRefresh, const char *style)
 {
@@ -164,9 +156,9 @@ void sendHeader(const char *title, bool sendMetaRefresh, const char *style)
 
   sprintf(buffer, "<title>%s</title>\n", title);
   server.sendContent(buffer);
-  server.sendContent_P(header2_html);
+  sendUncompressed(header2_html_gz, header2_html_gz_len);
   server.sendContent(title);
-  server.sendContent_P(header3_html);
+  sendUncompressed(header3_html_gz, header3_html_gz_len);
 }
 
 void sendHeader(const char *title, bool sendMetaRefresh)
@@ -197,7 +189,7 @@ void sendAuthentication()
 
 void sendFooter()
 {
-  server.sendContent_P(footer_html);
+  sendUncompressed(footer_html_gz, footer_html_gz_len);
   server.chunkedResponseFinalize();
   server.client().stop();
 }

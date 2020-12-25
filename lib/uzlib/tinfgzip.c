@@ -33,7 +33,7 @@
  *    any source distribution.
  */
 
-#include "tinf.h"
+#include "uzlib.h"
 
 #define FTEXT    1
 #define FHCRC    2
@@ -41,22 +41,22 @@
 #define FNAME    8
 #define FCOMMENT 16
 
-void tinf_skip_bytes(TINF_DATA *d, int num);
-uint16_t tinf_get_uint16(TINF_DATA *d);
+void tinf_skip_bytes(struct uzlib_uncomp *d, int num);
+uint16_t tinf_get_uint16(struct uzlib_uncomp *d);
 
-void tinf_skip_bytes(TINF_DATA *d, int num)
+void tinf_skip_bytes(struct uzlib_uncomp *d, int num)
 {
     while (num--) uzlib_get_byte(d);
 }
 
-uint16_t tinf_get_uint16(TINF_DATA *d)
+uint16_t tinf_get_uint16(struct uzlib_uncomp *d)
 {
     unsigned int v = uzlib_get_byte(d);
     v = (uzlib_get_byte(d) << 8) | v;
     return v;
 }
 
-int uzlib_gzip_parse_header(TINF_DATA *d)
+int uzlib_gzip_parse_header(struct uzlib_uncomp *d)
 {
     unsigned char flg;
 

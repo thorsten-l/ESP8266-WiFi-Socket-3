@@ -3,7 +3,6 @@
 #include <ESP8266WiFi.h>
 #include <ESP8266mDNS.h>
 #include <DNSServer.h>
-#include <Syslog.hpp>
 #include <LinkedList.hpp>
 #include "WifiHandler.hpp"
 
@@ -161,17 +160,6 @@ const bool WifiHandler::handle(time_t timestamp)
           Serial.printf(" - WiFi phy mode: %s\n", getPhyMode());
           Serial.printf(" - WiFi MAC Address: %s\n", macAddress);
           Serial.printf(" - WiFi Hostname: %s\n", WiFi.hostname().c_str());
-
-          if (appcfg.syslog_enabled)
-          {
-            syslog.logInfo(APP_NAME ", Version " APP_VERSION ", by " APP_AUTHOR);
-            syslog.logInfo("Build date: " __DATE__ " " __TIME__);
-            syslog.logInfo("WiFi connected");
-            syslog.logInfo("  host ip addr:", appcfg.net_host);
-            syslog.logInfo("  netmask:", appcfg.net_mask);
-            syslog.logInfo("  gateway:", appcfg.net_gateway);
-            syslog.logInfo("  dns server:", appcfg.net_dns);
-          }
 
           Serial.println();
           app.wifiLedOn();

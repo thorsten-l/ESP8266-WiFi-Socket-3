@@ -34,7 +34,7 @@
 
 #include <assert.h>
 #include <string.h>
-#include "tinf.h"
+#include "uzlib.h"
 
 #define UZLIB_DUMP_ARRAY(heading, arr, size) \
     { \
@@ -45,8 +45,8 @@
         printf("\n"); \
     }
 
-uint32_t tinf_get_le_uint32(TINF_DATA *d);
-uint32_t tinf_get_be_uint32(TINF_DATA *d);
+uint32_t tinf_get_le_uint32(struct uzlib_uncomp *d);
+uint32_t tinf_get_be_uint32(struct uzlib_uncomp *d);
 
 /* --------------------------------------------------- *
  * -- uninitialized global data (static structures) -- *
@@ -190,7 +190,7 @@ static void tinf_build_tree(TINF_TREE *t, const unsigned char *lengths, unsigned
  * -- decode functions -- *
  * ---------------------- */
 
-unsigned char uzlib_get_byte(TINF_DATA *d)
+unsigned char uzlib_get_byte(struct uzlib_uncomp *d)
 {
     /* If end of source buffer is not reached, return next byte from source
        buffer. */
@@ -204,14 +204,14 @@ unsigned char uzlib_get_byte(TINF_DATA *d)
     /* Otherwise if there's callback and we haven't seen EOF yet, try to
        read next byte using it. (Note: the callback can also update ->source
        and ->source_limit). */
-    if (d->readSource && !d->eof) {
-        int val = d->readSource(d);
+    if (d->source_read_cb && !d->eof) {
+        int val = d->source_read_cb(d);
         if (val >= 0) {
             return (unsigned char)val;
         }
     }
 
-    /* Otherwise, we hit EOF (either from ->readSource() or from exhaustion
+    /* Otherwise, we hit EOF (either from ->source_read_cb() or from exhaustion
        of the buffer), and it will be "sticky", i.e. further calls to this
        function will end up here too. */
     d->eof = true;
@@ -219,7 +219,7 @@ unsigned char uzlib_get_byte(TINF_DATA *d)
     return 0;
 }
 
-uint32_t tinf_get_le_uint32(TINF_DATA *d)
+uint32_t tinf_get_le_uint32(struct uzlib_uncomp *d)
 {
     uint32_t val = 0;
     int i;
@@ -229,7 +229,7 @@ uint32_t tinf_get_le_uint32(TINF_DATA *d)
     return val;
 }
 
-uint32_t tinf_get_be_uint32(TINF_DATA *d)
+uint32_t tinf_get_be_uint32(struct uzlib_uncomp *d)
 {
     uint32_t val = 0;
     int i;
@@ -240,7 +240,7 @@ uint32_t tinf_get_be_uint32(TINF_DATA *d)
 }
 
 /* get one bit from source stream */
-static int tinf_getbit(TINF_DATA *d)
+static int tinf_getbit(struct uzlib_uncomp *d)
 {
    unsigned int bit;
 
@@ -260,7 +260,7 @@ static int tinf_getbit(TINF_DATA *d)
 }
 
 /* read a num bit value from a stream and add base */
-static unsigned int tinf_read_bits(TINF_DATA *d, int num, int base)
+static unsigned int tinf_read_bits(struct uzlib_uncomp *d, int num, int base)
 {
    unsigned int val = 0;
 
@@ -278,7 +278,7 @@ static unsigned int tinf_read_bits(TINF_DATA *d, int num, int base)
 }
 
 /* given a data stream and a tree, decode a symbol */
-static int tinf_decode_symbol(TINF_DATA *d, TINF_TREE *t)
+static int tinf_decode_symbol(struct uzlib_uncomp *d, TINF_TREE *t)
 {
    int sum = 0, cur = 0, len = 0;
 
@@ -307,7 +307,7 @@ static int tinf_decode_symbol(TINF_DATA *d, TINF_TREE *t)
 }
 
 /* given a data stream, decode dynamic trees from it */
-static int tinf_decode_trees(TINF_DATA *d, TINF_TREE *lt, TINF_TREE *dt)
+static int tinf_decode_trees(struct uzlib_uncomp *d, TINF_TREE *lt, TINF_TREE *dt)
 {
    /* code lengths for 288 literal/len symbols and 32 dist symbols */
    unsigned char lengths[288+32];
@@ -407,7 +407,7 @@ static int tinf_decode_trees(TINF_DATA *d, TINF_TREE *lt, TINF_TREE *dt)
  * ----------------------------- */
 
 /* given a stream and two trees, inflate next chunk of output (a byte or more) */
-static int tinf_inflate_block_data(TINF_DATA *d, TINF_TREE *lt, TINF_TREE *dt)
+static int tinf_inflate_block_data(struct uzlib_uncomp *d, TINF_TREE *lt, TINF_TREE *dt)
 {
     if (d->curlen == 0) {
         unsigned int offs;
@@ -468,7 +468,7 @@ static int tinf_inflate_block_data(TINF_DATA *d, TINF_TREE *lt, TINF_TREE *dt)
             }
         } else {
             /* catch trying to point before the start of dest buffer */
-            if (offs > d->dest - d->destStart) {
+            if (offs > d->dest - d->dest_start) {
                 return TINF_DATA_ERROR;
             }
             d->lzOff = -offs;
@@ -502,7 +502,7 @@ static int tinf_inflate_block_data(TINF_DATA *d, TINF_TREE *lt, TINF_TREE *dt)
 }
 
 /* inflate next byte from uncompressed block of data */
-static int tinf_inflate_uncompressed_block(TINF_DATA *d)
+static int tinf_inflate_uncompressed_block(struct uzlib_uncomp *d)
 {
     if (d->curlen == 0) {
         unsigned int length, invlength;
@@ -552,7 +552,7 @@ void uzlib_init(void)
 }
 
 /* initialize decompression structure */
-void uzlib_uncompress_init(TINF_DATA *d, void *dict, unsigned int dictLen)
+void uzlib_uncompress_init(struct uzlib_uncomp *d, void *dict, unsigned int dictLen)
 {
    d->eof = 0;
    d->bitcount = 0;
@@ -565,7 +565,7 @@ void uzlib_uncompress_init(TINF_DATA *d, void *dict, unsigned int dictLen)
 }
 
 /* inflate next output bytes from compressed stream */
-int uzlib_uncompress(TINF_DATA *d)
+int uzlib_uncompress(struct uzlib_uncomp *d)
 {
     do {
         int res;
@@ -626,52 +626,4 @@ next_blk:
     } while (d->dest < d->dest_limit);
 
     return TINF_OK;
-}
-
-/* inflate next output bytes from compressed stream, updating
-   checksum, and at the end of stream, verify it */
-int uzlib_uncompress_chksum(TINF_DATA *d)
-{
-    int res;
-    unsigned char *data = d->dest;
-
-    res = uzlib_uncompress(d);
-
-    if (res < 0) return res;
-
-    switch (d->checksum_type) {
-
-    case TINF_CHKSUM_ADLER:
-        d->checksum = uzlib_adler32(data, d->dest - data, d->checksum);
-        break;
-
-    case TINF_CHKSUM_CRC:
-        d->checksum = uzlib_crc32(data, d->dest - data, d->checksum);
-        break;
-    }
-
-    if (res == TINF_DONE) {
-        unsigned int val;
-
-        switch (d->checksum_type) {
-
-        case TINF_CHKSUM_ADLER:
-            val = tinf_get_be_uint32(d);
-            if (d->checksum != val) {
-                return TINF_CHKSUM_ERROR;
-            }
-            break;
-
-        case TINF_CHKSUM_CRC:
-            val = tinf_get_le_uint32(d);
-            if (~d->checksum != val) {
-                return TINF_CHKSUM_ERROR;
-            }
-            // Uncompressed size. TODO: Check
-            val = tinf_get_le_uint32(d);
-            break;
-        }
-    }
-
-    return res;
 }

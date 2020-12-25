@@ -11,11 +11,6 @@
 
 extern ESP8266WebServer server;
 
-extern const char header_html[];
-extern const char header2_html[];
-extern const char header3_html[];
-extern const char footer_html[];
-
 extern void handleRootPage();
 extern void handleInfoPage();
 extern void handleSetupPage();

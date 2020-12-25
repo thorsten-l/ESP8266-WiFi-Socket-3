@@ -1,7 +1,6 @@
 #include <App.hpp>
 #include <OpenHabHandler.hpp>
 #include <MqttHandler.hpp>
-#include <Syslog.hpp>
 #include "RelayHandler.hpp"
 
 RelayHandler relayHandler;
@@ -35,7 +34,6 @@ void RelayHandler::on()
 
     openHabHandler.sendValue("ON");
     mqttHandler.sendValue( appcfg.mqtt_outtopic, "ON");
-    syslog.logInfo( "power on" );
   }
 }
 
@@ -61,7 +59,6 @@ void RelayHandler::off()
 
     openHabHandler.sendValue("OFF");
     mqttHandler.sendValue( appcfg.mqtt_outtopic, "OFF");
-    syslog.logInfo( "power off" );
   }
 }
 

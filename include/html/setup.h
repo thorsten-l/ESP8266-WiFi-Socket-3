@@ -134,6 +134,7 @@ const char SETUP_HTML_TEMPLATE[] PROGMEM =
 #endif
     "</div>\n"
 
+/*
   "<div class='accordion'>Syslog</div>\n"
   "<div class='panel sub-panel'>\n"
     "<div class=\"pure-control-group\"><label for=\"pgid30\">Enabled</label><input id=\"pgid30\" type=\"checkbox\" name=\"syslog_enabled\" value=\"true\" %syslog_enabled%></div>\n"
@@ -141,6 +142,7 @@ const char SETUP_HTML_TEMPLATE[] PROGMEM =
     "<div class=\"pure-control-group\"><label for=\"pgid32\">Port (TCP)</label><input id=\"pgid32\" type=\"text\" name=\"syslog_port\" maxlength=\"64\" value=\"%syslog_port%\"></div>\n"
     "<div class=\"pure-control-group\"><label for=\"pgid33\">App Name</label><input id=\"pgid33\" type=\"text\" name=\"syslog_app_name\" maxlength=\"64\" value=\"%syslog_app_name%\"></div>\n"
   "</div>\n"
+*/
 
   "</fieldset></div>\n"
   "\n<p><input class=\"pure-button pure-button-primary\" type=\"submit\" value=\"Save Configuration\"></p>\n"

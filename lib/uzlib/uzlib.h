@@ -121,46 +121,20 @@ struct uzlib_uncomp {
     TINF_TREE dtree; /* dynamic distance tree */
 };
 
-#include "tinf_compat.h"
-
 #define TINF_PUT(d, c) \
     { \
         *d->dest++ = c; \
         if (d->dict_ring) { d->dict_ring[d->dict_idx++] = c; if (d->dict_idx == d->dict_size) d->dict_idx = 0; } \
     }
 
-unsigned char TINFCC uzlib_get_byte(TINF_DATA *d);
+unsigned char TINFCC uzlib_get_byte(struct uzlib_uncomp *d);
 
 /* Decompression API */
 
 void TINFCC uzlib_init(void);
-void TINFCC uzlib_uncompress_init(TINF_DATA *d, void *dict, unsigned int dictLen);
-int  TINFCC uzlib_uncompress(TINF_DATA *d);
-int  TINFCC uzlib_uncompress_chksum(TINF_DATA *d);
-
-int TINFCC uzlib_zlib_parse_header(TINF_DATA *d);
-int TINFCC uzlib_gzip_parse_header(TINF_DATA *d);
-
-/* Compression API */
-
-typedef const uint8_t *uzlib_hash_entry_t;
-
-struct uzlib_comp {
-    struct Outbuf out;
-
-    uzlib_hash_entry_t *hash_table;
-    unsigned int hash_bits;
-    unsigned int dict_size;
-};
-
-void TINFCC uzlib_compress(struct uzlib_comp *c, const uint8_t *src, unsigned slen);
-
-/* Checksum API */
-
-/* prev_sum is previous value for incremental computation, 1 initially */
-uint32_t TINFCC uzlib_adler32(const void *data, unsigned int length, uint32_t prev_sum);
-/* crc is previous value for incremental computation, 0xffffffff initially */
-uint32_t TINFCC uzlib_crc32(const void *data, unsigned int length, uint32_t crc);
+void TINFCC uzlib_uncompress_init(struct uzlib_uncomp *d, void *dict, unsigned int dictLen);
+int  TINFCC uzlib_uncompress(struct uzlib_uncomp *d);
+int TINFCC uzlib_gzip_parse_header(struct uzlib_uncomp *d);
 
 #ifdef __cplusplus
 } /* extern "C" */
