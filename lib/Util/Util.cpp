@@ -3,9 +3,8 @@
 
 extern void sendPrint(const char *message);
 
-#define BUFFER_LENGTH 3072
-char buffer[BUFFER_LENGTH];
-char buffer2[256];
+char buffer[BUFFER_LENGTH+1];
+char buffer2[BUFFER2_LENGTH+1];
 
 #define MAX_MESSAGE_LENGTH 200
 #define MESSAGE_BUFFER_LINES 11

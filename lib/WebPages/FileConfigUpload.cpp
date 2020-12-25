@@ -1,7 +1,7 @@
 #include <App.hpp>
 #include <FS.h>
 #include <LittleFS.h>
-#include "Pages.h"
+#include "WebPages.h"
 
 static File fsUploadFile;
 

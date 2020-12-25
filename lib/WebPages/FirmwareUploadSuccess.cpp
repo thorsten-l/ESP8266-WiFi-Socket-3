@@ -1,4 +1,4 @@
-#include "Pages.h"
+#include "WebPages.h"
 
 extern bool firmwareUploadFailed;
 extern char *firmwareUploadErrorMessage;

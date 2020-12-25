@@ -1,6 +1,6 @@
 #include <App.hpp>
 #include <ConfigAttributes.hpp>
-#include "Pages.h"
+#include "WebPages.h"
 
 void paramChars(char *dest, const char *paramName, const char *name, const char *value)
 {

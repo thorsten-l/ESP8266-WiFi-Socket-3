@@ -36,6 +36,8 @@ static void wifiInitStationMode()
   WiFi.setSleepMode(WIFI_NONE_SLEEP);
 
   LOG0("Starting Wifi in Station Mode\n");
+  LOG1("  - Connecting to %s\n", appcfg.wifi_ssid);
+
   if (appcfg.net_mode == NET_MODE_STATIC)
   {
     LOG0("use static ip address");

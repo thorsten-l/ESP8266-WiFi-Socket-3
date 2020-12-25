@@ -3,7 +3,7 @@
 #include <Hlw8012Handler.hpp>
 #include <WifiHandler.hpp>
 #include <ESP8266WebServer.h>
-#include "Pages.h"
+#include "WebPages.h"
 
 extern ESP8266WebServer server;
 

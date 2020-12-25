@@ -10,17 +10,23 @@
 #include <OtaHandler.hpp>
 #include <Util.hpp>
 #include <WifiHandler.hpp>
-
-#include "pages/Pages.h"
-
+#include <WebPages.h>
 #include <RelayHandler.hpp>
 
+#include <uzlib.h>
+
+#include <html/header_gz.h>
 #include <html/footer.h>
-#include <html/header.h>
 #include <html/header2.h>
 #include <html/header3.h>
 #include <html/setup.h>
 #include <html/favicon_ico.h>
+
+const char META_REFRESH30[] PROGMEM =
+  "<meta http-equiv=\"refresh\" content=\"35; URL=/\">";
+
+static struct uzlib_uncomp uzLibDecompressor;
+static uint32_t uzlib_bytesleft;
 
 size_t fsTotalBytes;
 size_t fsUsedBytes;
@@ -97,11 +103,54 @@ const char *getJsonStatus(WiFiClient *client)
 
 
 
+
+int sendUncompressed( const uint8_t *compressedData, const uint32_t compressedDataLength)
+{
+  uzlib_init();
+  uzLibDecompressor.source = compressedData;
+  uzLibDecompressor.source_limit = compressedData + compressedDataLength;
+  
+  uzlib_bytesleft = 0;
+  for( int i=1; i<5; i++ )
+  {
+    uzlib_bytesleft <<= 8;
+    uzlib_bytesleft |= pgm_read_byte( compressedData + compressedDataLength - i );
+  }
+  Serial.printf("decompressed file length = %u\n", uzlib_bytesleft );
+  
+  uzlib_uncompress_init(&uzLibDecompressor, buffer, BUFFER_LENGTH );
+  
+  int res = uzlib_gzip_parse_header(&uzLibDecompressor);
+  
+  if (res != 0) {
+    Serial.println("[ERROR] in gzUncompress: uzlib_gzip_parse_header failed!");
+    return res;
+  }
+
+  while( uzlib_bytesleft > 0 ) {
+    uzLibDecompressor.dest_start = (unsigned char *)buffer2;
+    uzLibDecompressor.dest = (unsigned char *)buffer2;
+    int to_read = ( uzlib_bytesleft > BUFFER2_LENGTH) ? BUFFER2_LENGTH : uzlib_bytesleft;
+    uzLibDecompressor.dest_limit = (unsigned char *)buffer2 + to_read;
+    uzlib_uncompress(&uzLibDecompressor);
+
+    // fwrite( buffer2, to_read, 1, fd );
+    buffer2[to_read] = 0;
+    server.sendContent(buffer2);
+
+    uzlib_bytesleft -= to_read;
+  }
+  return 0;
+}
+
+
+
 void sendHeader(const char *title, bool sendMetaRefresh, const char *style)
 {
   server.sendHeader("Access-Control-Allow-Origin", "*");
   server.chunkedResponseModeStart(200, "text/html");
-  server.sendContent_P(header_html);
+
+  sendUncompressed(header_html_gz, header_html_gz_len);
 
   if (sendMetaRefresh)
   {
@@ -222,6 +271,7 @@ void WebHandler::setup()
   server.on("/update-firmware", HTTP_POST, handleFirmwareUploadSuccess, handleFirmwareUpload);
   server.on("/reset-firmware", handleResetFirmware);
   server.on("/savecfg", handleSaveConfigPage);
+  server.on("/test1", handleTest1Page);
 
   if ( appcfg.wifi_mode == WIFI_AP )
   {

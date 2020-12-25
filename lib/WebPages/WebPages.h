@@ -1,5 +1,5 @@
-#ifndef __PAGES_H__
-#define __PAGES_H__
+#ifndef __WEB_PAGES_H__
+#define __WEB_PAGES_H__
 
 #include <App.hpp>
 #include <DefaultAppConfig.h>
@@ -13,6 +13,7 @@ extern ESP8266WebServer server;
 
 extern const char header_html[];
 extern const char header2_html[];
+extern const char header3_html[];
 extern const char footer_html[];
 
 extern void handleRootPage();
@@ -30,6 +31,8 @@ extern void handleSystemRestart();
 extern void handleJsonStatusOn();
 extern void handleJsonStatusOff();
 extern void handleJsonStatusState();
+
+extern void handleTest1Page();
 
 extern void sendAuthentication();
 extern void sendHeaderNoCache();

@@ -7,7 +7,7 @@
 #include <WebHandler.hpp>
 #include <WifiHandler.hpp>
 #include <Hlw8012Handler.hpp>
-#include <InternetConnectionCheckHandler.hpp>
+#include <uzlib.h>
 
 unsigned long lifeTicker;
 unsigned long maxLoopTime;
@@ -59,6 +59,7 @@ void setup()
 
   maxLoopTime = 0l;
   lifeTicker = lastLoopTimestamp = millis();
+  uzlib_init();
 }
 
 void loop()
@@ -132,8 +133,6 @@ void loop()
     openHabHandler.handle(thisLoopTimestamp);
     mqttHandler.handle(thisLoopTimestamp);
   }
-
-  internetConnectionCheckHandler.handle(thisLoopTimestamp);
 
 #ifdef HAVE_HLW8012
   hlw8012Handler.handle(thisLoopTimestamp);

@@ -2,7 +2,7 @@
 #include <App.hpp>
 #include <Util.hpp>
 #include <html/maintenance.h>
-#include "Pages.h"
+#include "WebPages.h"
 
 static const char *setupProcessor(const char *var)
 {

@@ -1,6 +1,6 @@
 #include <App.hpp>
 #include <ESP8266mDNS.h>
-#include "Pages.h"
+#include "WebPages.h"
 
 bool firmwareUploadFailed;
 const char *firmwareUploadErrorMessage;

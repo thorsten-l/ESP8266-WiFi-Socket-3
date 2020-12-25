@@ -1,5 +1,5 @@
 #include <App.hpp>
-#include "Pages.h"
+#include "WebPages.h"
 #include <RelayHandler.hpp>
 #ifdef HAVE_HLW8012
 #include <Hlw8012Handler.hpp>
