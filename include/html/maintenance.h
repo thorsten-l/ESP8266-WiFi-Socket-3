@@ -78,7 +78,7 @@ const char MAINTENANCE_HTML_TEMPLATE[] PROGMEM =
                 "</form>\n"
             "</div>\n"
 
-  "<p>&nbsp;</p></div>\n"
+        "<p>&nbsp;</p></div>\n"
 
   "<script type='text/javascript'>\n"
     "var input = document.getElementById('pgid34'),label = input.nextElementSibling,labelVal = label.innerHTML;\n"

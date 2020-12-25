@@ -17,6 +17,7 @@ const char SETUP_HTML_TEMPLATE[] PROGMEM =
   "</div>\n"
 #endif
 
+/*
   "<div class='accordion'>Internet Check Mode</div>\n"
   "<div class='panel sub-panel'>\n"
     "<div class=\"pure-control-group\"><label for=\"inetc1\">Enabled</label><input id=\"inetc1\" type=\"checkbox\" name=\"inet_check_enabled\" value=\"true\" %inet_check_enabled%></div>\n"
@@ -31,6 +32,7 @@ const char SETUP_HTML_TEMPLATE[] PROGMEM =
     "<option %inet_check_action_6% value=\"6\">Mirror inverse connection state</option>\n"
     "</select></div>\n"
   "</div>\n"
+*/
 
 #if defined(POWER_BUTTON_IS_MULTIMODE)
   "<div class='accordion'>Power Button</div>\n"

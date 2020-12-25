@@ -17,7 +17,7 @@
   "frameworks": [
     "arduino"
   ],
-  "name": "WeMos D1 mini 2M",
+  "name": "WeMos D1 mini lite 2M",
   "upload": {
     "maximum_ram_size": 81920,
     "maximum_size": 2097152,

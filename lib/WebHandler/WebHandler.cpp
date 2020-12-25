@@ -90,13 +90,19 @@ const char *getJsonStatus(WiFiClient *client)
           "\"remote_client_port\":%u"
           "}",
           millis(), appUptime(), wifiHandler.getHostname(),
-          ESP.getFullVersion().c_str(), ESP.getCoreVersion().c_str(), ESP.getSdkVersion(), PIOENV, PIOPLATFORM,
-          PIOFRAMEWORK, ARDUINO_BOARD, ESP.getChipId(), ESP.getCpuFreqMHz(), ESP.getFlashChipRealSize(),
-          ESP.getFlashChipSpeed(), ESP.getFlashChipSize(), APP_NAME, APP_VERSION, __DATE__, __TIME__, appcfg.wifi_ssid,
-          wifiHandler.getConnectCounter(), WiFi.channel(), wifiHandler.getPhyMode(), wifiHandler.getMacAddress(),
-          WiFi.hostname().c_str(), WiFi.localIP().toString().c_str(), WiFi.gatewayIP().toString().c_str(),
-          WiFi.subnetMask().toString().c_str(), WiFi.dnsIP().toString().c_str(), fsTotalBytes, fsUsedBytes,
-          ESP.getFreeHeap(), ESP.getSketchSize(), ESP.getFreeSketchSpace(), remoteAddress, remotePort);
+          ESP.getFullVersion().c_str(), ESP.getCoreVersion().c_str(), 
+          ESP.getSdkVersion(), PIOENV, PIOPLATFORM, PIOFRAMEWORK, 
+          ARDUINO_BOARD, ESP.getChipId(), ESP.getCpuFreqMHz(), 
+          ESP.getFlashChipRealSize(), ESP.getFlashChipSpeed(), 
+          ESP.getFlashChipSize(), APP_NAME, APP_VERSION, __DATE__, __TIME__, 
+          appcfg.wifi_ssid, wifiHandler.getConnectCounter(), WiFi.channel(), 
+          wifiHandler.getPhyMode(), wifiHandler.getMacAddress(),
+          WiFi.hostname().c_str(), WiFi.localIP().toString().c_str(), 
+          WiFi.gatewayIP().toString().c_str(), 
+          WiFi.subnetMask().toString().c_str(), 
+          WiFi.dnsIP().toString().c_str(), fsTotalBytes, fsUsedBytes,
+          ESP.getFreeHeap(), ESP.getSketchSize(), ESP.getFreeSketchSpace(), 
+          remoteAddress, remotePort );
 
   return buffer;
 }

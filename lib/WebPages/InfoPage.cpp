@@ -43,8 +43,8 @@ void handleInfoPage()
 //             (appcfg.alexa_enabled) ? "true" : "false");
   sendPrintf("<p>MQTT Enabled: %s</p>",
              (appcfg.mqtt_enabled) ? "true" : "false");
-  sendPrintf("<p>Syslog Enabled: %s</p>",
-             (appcfg.syslog_enabled) ? "true" : "false");
+//  sendPrintf("<p>Syslog Enabled: %s</p>",
+//             (appcfg.syslog_enabled) ? "true" : "false");
 
   sendPrint("</form>");
   sendFooter();
