@@ -85,6 +85,7 @@ void storeConfigValue(const char *name, const char *value)
   paramChars(appcfgWR.mqtt_password, A_mqtt_password, name, value);
   paramChars(appcfgWR.mqtt_intopic, A_mqtt_intopic, name, value);
   paramChars(appcfgWR.mqtt_outtopic, A_mqtt_outtopic, name, value);
+  paramUnsignedLong(&appcfgWR.mqtt_sending_interval, A_mqtt_sending_interval, name, value);
 
   // OpenHAB
   paramBool(&appcfgWR.ohab_enabled, A_ohab_enabled, name, value );

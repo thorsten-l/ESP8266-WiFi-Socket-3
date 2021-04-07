@@ -112,8 +112,8 @@ void App::defaultConfig()
   strncpy(appcfg.mqtt_topic_current, DEFAULT_MQTT_TOPIC_CURRENT, 63);
   strncpy(appcfg.mqtt_topic_power, DEFAULT_MQTT_TOPIC_POWER, 63);
   strncpy(appcfg.mqtt_topic_json, DEFAULT_MQTT_TOPIC_JSON, 63);
-  appcfg.mqtt_sending_interval = DEFAULT_MQTT_SENDING_INTERVAL;
 #endif
+  appcfg.mqtt_sending_interval = DEFAULT_MQTT_SENDING_INTERVAL;
 
 #ifdef POWER_BUTTON_IS_MULTIMODE
   appcfg.power_button_mode = DEFAULT_POWER_BUTTON_MODE;
@@ -394,8 +394,8 @@ void App::writeConfig()
     j.writeEntry(A_mqtt_topic_current, appcfgWR.mqtt_topic_current);
     j.writeEntry(A_mqtt_topic_power, appcfgWR.mqtt_topic_power);
     j.writeEntry(A_mqtt_topic_json, appcfgWR.mqtt_topic_json);
-    j.writeEntry(A_mqtt_sending_interval, appcfgWR.mqtt_sending_interval);
 #endif
+    j.writeEntry(A_mqtt_sending_interval, appcfgWR.mqtt_sending_interval);
 
     j.writeEntry(A_syslog_enabled, appcfgWR.syslog_enabled);
     j.writeEntry(A_syslog_host, appcfgWR.syslog_host);
@@ -491,8 +491,8 @@ void App::printConfig(AppConfig ac)
   Serial.printf("    Topic Current: %s\n", ac.mqtt_topic_current);
   Serial.printf("    Topic Power: %s\n", ac.mqtt_topic_power);
   Serial.printf("    Topic JSON: %s\n", ac.mqtt_topic_json);
-  Serial.printf("    Sending Interval: %ld\n", ac.mqtt_sending_interval);
 #endif
+  Serial.printf("    Sending Interval: %ld\n", ac.mqtt_sending_interval);
 
   Serial.println("\n  Syslog:");
   Serial.printf("    Enabled: %s\n",
@@ -617,8 +617,8 @@ bool App::loadJsonConfig(const char *filename)
       readError |= j.readEntryChars(attributeName, A_mqtt_topic_current, appcfgRD.mqtt_topic_current);
       readError |= j.readEntryChars(attributeName, A_mqtt_topic_power, appcfgRD.mqtt_topic_power);
       readError |= j.readEntryChars(attributeName, A_mqtt_topic_json, appcfgRD.mqtt_topic_json);
-      readError |= j.readEntryULong(attributeName, A_mqtt_sending_interval, &appcfgRD.mqtt_sending_interval);
 #endif
+      readError |= j.readEntryULong(attributeName, A_mqtt_sending_interval, &appcfgRD.mqtt_sending_interval);
 
       readError |= j.readEntryBoolean(attributeName, A_syslog_enabled, &appcfgRD.syslog_enabled);
       readError |= j.readEntryChars(attributeName, A_syslog_host, appcfgRD.syslog_host);

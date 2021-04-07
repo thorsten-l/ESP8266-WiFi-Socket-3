@@ -69,6 +69,10 @@ bool MqttHandler::reconnect()
     LOG0("mqtt broker connected\n");
     client.subscribe(appcfg.mqtt_intopic);
   }
+  else 
+  {
+    LOG0("mqtt broker NOT connected\n");
+  }
 
   return client.connected();
 }
@@ -98,6 +102,7 @@ void MqttHandler::handle( unsigned long now)
 
       if (now - lastReconnectAttempt > 5000)
       {
+        LOG0( "MQTT try reconnect\n");
         lastReconnectAttempt = now;
         reconnect();
       }
@@ -106,12 +111,12 @@ void MqttHandler::handle( unsigned long now)
     {
       client.loop();
 
-#if defined(HAVE_ENERGY_SENSOR)
       if ( appcfg.mqtt_sending_interval > 0 &&
        ( now - lastPublishTimestamp ) > (appcfg.mqtt_sending_interval*1000))
       {
         lastPublishTimestamp = now;
-        
+
+#if defined(HAVE_ENERGY_SENSOR)        
 #if defined(HAVE_HLW8012)
         char hbuffer[128];
         sendValue( appcfg.mqtt_topic_voltage, hlw8012Handler.getVoltage());
@@ -124,8 +129,9 @@ void MqttHandler::handle( unsigned long now)
         hlw8012Handler.getVoltage(), hlw8012Handler.getCurrent(), hlw8012Handler.getPower() );
         sendValue( appcfg.mqtt_topic_json, hbuffer );
 #endif
-      }
 #endif
+        sendValue( appcfg.mqtt_outtopic, (relayHandler.isPowerOn()) ? "ON" : "OFF" );
+      }
     }
   }
 }
@@ -136,6 +142,7 @@ void MqttHandler::sendValue( const char* topic, const char *value )
   {
     if ( topic != NULL && value != NULL && strlen(topic) > 0 && topic[0] != '-' )
     {
+      client.clearWriteError();
       client.publish( topic, value );
     }
   }

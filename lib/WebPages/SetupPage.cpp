@@ -134,6 +134,11 @@ static const char *setupProcessor(const char *var)
     return appcfg.mqtt_intopic;
   if (strcmp(var, A_mqtt_outtopic) == 0)
     return appcfg.mqtt_outtopic;
+  if (strcmp(var, A_mqtt_sending_interval) == 0)
+  {
+    sprintf(buffer, "%lu", appcfg.mqtt_sending_interval);
+    return buffer;
+  }
 
   // Syslog
   if (strcmp(var, A_syslog_enabled) == 0 && appcfg.syslog_enabled == true)

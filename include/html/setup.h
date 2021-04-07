@@ -132,8 +132,8 @@ const char SETUP_HTML_TEMPLATE[] PROGMEM =
     "<div class=\"pure-control-group\"><label for=\"emid06\">Topic Current</label><input id=\"emid06\" type=\"text\" name=\"mqtt_topic_current\" maxlength=\"64\" value=\"%mqtt_topic_current%\"></div>\n"
     "<div class=\"pure-control-group\"><label for=\"emid07\">Topic Power</label><input id=\"emid07\" type=\"text\" name=\"mqtt_topic_power\" maxlength=\"64\" value=\"%mqtt_topic_power%\"></div>\n"
     "<div class=\"pure-control-group\"><label for=\"emid08\">Topic JSON</label><input id=\"emid08\" type=\"text\" name=\"mqtt_topic_json\" maxlength=\"64\" value=\"%mqtt_topic_json%\"></div>\n"
-    "<div class=\"pure-control-group\"><label for=\"emid09\">Sending Interval</label><input id=\"emid09\" type=\"text\" name=\"mqtt_sending_interval\" maxlength=\"64\" value=\"%mqtt_sending_interval%\"></div>\n"
 #endif
+    "<div class=\"pure-control-group\"><label for=\"emid09\">Sending Interval</label><input id=\"emid09\" type=\"text\" name=\"mqtt_sending_interval\" maxlength=\"64\" value=\"%mqtt_sending_interval%\"></div>\n"
     "</div>\n"
 
 /*

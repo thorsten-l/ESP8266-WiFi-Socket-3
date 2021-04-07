@@ -81,8 +81,8 @@ typedef struct appconfig
   char mqtt_topic_current[64];
   char mqtt_topic_power[64];
   char mqtt_topic_json[64];
-  unsigned long mqtt_sending_interval;
 #endif
+  unsigned long mqtt_sending_interval;
 
   bool syslog_enabled;
   char syslog_host[64];
