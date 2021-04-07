@@ -263,6 +263,11 @@ void WebHandler::setup()
   server.on("/cmd/OFF", handleJsonStatusOff );
   server.on("/state", handleJsonStatusState );
 
+  server.on("/api/json", HTTP_POST, handleJsonStatusPOST );
+  server.on("/api/json", HTTP_GET, handleJsonStatusState );
+  server.on("/api/plain", HTTP_POST, handlePlainStatusPOST );
+  server.on("/api/plain", HTTP_GET, handlePlainStatusState );
+
   server.on("/plain/cmd", HTTP_POST, handlePlainStatusPOST );
   server.on("/plain/cmd/ON", handlePlainStatusOn );
   server.on("/plain/cmd/OFF", handlePlainStatusOff );
