@@ -50,17 +50,17 @@ void OtaHandler::setup()
   });
 
   ArduinoOTA.begin();
-  MDNS.addServiceTxt("arduino", "tcp", "fw_name", APP_NAME );
-  MDNS.addServiceTxt("arduino", "tcp", "fw_version", APP_VERSION );
   initialized = true;
 }
 
 void OtaHandler::handle()
 {
-  if( ! initialized )
+  if ( appcfg.ota_enabled )
   {
-    setup();
+    if( ! initialized )
+    {
+      setup();
+    }
+    ArduinoOTA.handle();
   }
-
-  ArduinoOTA.handle();
 }
