@@ -79,7 +79,7 @@ void handleRootPage()
   sendPrint(
       "<script>function getPowerState(){var e = "
       "document.getElementById(\"idpwr\");fetch(\"/state\").then((resp) => "
-      "resp.json()).then(function(data){if(data.state===1){e.textContent="
+      "resp.json()).then(function(data){if(data.state===\"ON\"){e.textContent="
       "\"Power is ON\";e.style=\"background-color: #80ff80\";} else "
       "{e.textContent=\"Power is OFF\";e.style=\"background-color: "
       "#ff8080\";}});} setInterval(getPowerState,10000);</script>");

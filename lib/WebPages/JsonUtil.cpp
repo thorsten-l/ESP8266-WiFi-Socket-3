@@ -16,18 +16,18 @@ void handleJsonStatus(int json_state)
   switch (json_state)
   {
   case JSON_RELAY_ON:
-    message += "1";
+    message += "\"ON\"";
     powerIsOn = true;
     break;
 
   case JSON_RELAY_OFF:
-    message += "0";
+    message += "\"OFF\"";
     powerIsOn = false;
     break;
 
   default:
     powerIsOn = relayHandler.isPowerOn();
-    message += (powerIsOn) ? "1" : "0";
+    message += (powerIsOn) ? "\"ON\"" : "\"OFF\"";
   };
 
 #if defined(HAVE_ENERGY_SENSOR) && defined(HAVE_HLW8012)
@@ -70,4 +70,23 @@ void handleJsonStatusOff()
 void handleJsonStatusState()
 {
   handleJsonStatus(JSON_RELAY_STATE);
+}
+
+void handleJsonStatusPOST()
+{
+  LOG0("POST\n");
+  LOG1( "args=%d\n", server.args());
+  for( int i = 0; i<server.args(); i++ )
+  {
+    LOG1( "  - %s = %s\n", server.argName(i).c_str(), server.arg(i).c_str());
+  }
+
+  if ( server.arg(0) == "ON" )
+  {
+    handleJsonStatusOn();
+  }
+  else
+  {
+    handleJsonStatusOff();
+  }
 }

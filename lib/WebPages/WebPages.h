@@ -23,9 +23,14 @@ extern void handleFirmwareUpload();
 extern void handleFirmwareUploadSuccess();
 extern void handleResetFirmware();
 extern void handleSystemRestart();
+extern void handleJsonStatusPOST();
 extern void handleJsonStatusOn();
 extern void handleJsonStatusOff();
 extern void handleJsonStatusState();
+extern void handlePlainStatusPOST();
+extern void handlePlainStatusOn();
+extern void handlePlainStatusOff();
+extern void handlePlainStatusState();
 
 extern void handleTest1Page();
 

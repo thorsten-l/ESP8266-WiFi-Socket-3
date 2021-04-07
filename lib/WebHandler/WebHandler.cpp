@@ -257,7 +257,16 @@ void WebHandler::setup()
 
   server.on("/on", handleJsonStatusOn );
   server.on("/off", handleJsonStatusOff );
+
+  server.on("/cmd", HTTP_POST, handleJsonStatusPOST );
+  server.on("/cmd/ON", handleJsonStatusOn );
+  server.on("/cmd/OFF", handleJsonStatusOff );
   server.on("/state", handleJsonStatusState );
+
+  server.on("/plain/cmd", HTTP_POST, handlePlainStatusPOST );
+  server.on("/plain/cmd/ON", handlePlainStatusOn );
+  server.on("/plain/cmd/OFF", handlePlainStatusOff );
+  server.on("/plain/state", handlePlainStatusState );
   
   server.on("/", handleRootPage);
   server.on("/info.html", handleInfoPage);
@@ -294,41 +303,6 @@ void WebHandler::setup()
       server.client().stop();
     }
   });
-
-/*
-  if (appcfg.alexa_enabled == true)
-  {
-    // These two callbacks are required for gen1 and gen3 compatibility
-    server.onRequestBody([](AsyncWebServerRequest *request, uint8_t *data,
-                            size_t len, size_t index, size_t total) {
-      LOG0("server.onRequestBody ");
-      if (fauxmo.process(request->client(), request->method() == HTTP_GET,
-                         request->url(), String((char *)data)))
-        return;
-    });
-    
-    server.onNotFound([](AsyncWebServerRequest *request) {
-      String body = (request->hasParam("body", true))
-                        ? request->getParam("body", true)->value()
-                        : String();
-      if (fauxmo.process(request->client(), request->method() == HTTP_GET,
-                         request->url(), body))
-        return;
-      request->send(404);
-    });
-  }
-  else
-  {
-    if ( appcfg.wifi_mode == WIFI_AP )
-    {
-      server.onNotFound( captivePortal );
-    }
-    else
-    {
-      server.onNotFound([](AsyncWebServerRequest *request) { request->send(404); });
-    }  
-  }
-*/
 
   if (appcfg.ota_enabled == false)
   {
