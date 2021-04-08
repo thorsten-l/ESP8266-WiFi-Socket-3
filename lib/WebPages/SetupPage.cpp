@@ -95,6 +95,7 @@ static const char *setupProcessor(const char *var)
     return appcfg.ohab_password;
 
 #ifdef HAVE_ENERGY_SENSOR
+/*
   if (strcmp(var, A_ohab_item_voltage) == 0 )
     return String(appcfg.ohab_item_voltage);
   if (strcmp(var, A_ohab_item_current) == 0 )
@@ -103,6 +104,7 @@ static const char *setupProcessor(const char *var)
     return String(appcfg.ohab_item_power);
   if (strcmp(var, A_ohab_sending_interval) == 0 )
     return String(appcfg.ohab_sending_interval);
+*/
 #endif
 
   // Alexa

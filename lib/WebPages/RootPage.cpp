@@ -44,20 +44,24 @@ void handleRootPage()
       "<a href=\"/?power=OFF\" class=\"pure-button button-off\">OFF</a>");
 
 #if defined(HAVE_ENERGY_SENSOR) && defined(HAVE_HLW8012)
-  prLegend(response, "Energy Sensor");
+  sendLegend("Energy Sensor");
+  /*
   int rid=0;
   char valueBuffer[32];
+
   sprintf( valueBuffer, "%0.1fV", hlw8012Handler.getVoltage() );
   prTextGroupReadOnly( response, rid++, "Voltage", valueBuffer );
   sprintf( valueBuffer, "%0.2fA", hlw8012Handler.getCurrent() );
   prTextGroupReadOnly( response, rid++, "Current", valueBuffer );
   sprintf( valueBuffer, "%0.1fW", hlw8012Handler.getPower() );
   prTextGroupReadOnly( response, rid++, "Power", valueBuffer );
+  */
 #endif
 
   sendPrint("</fieldset></form>\n");
 
 #ifdef HAVE_ENERGY_SENSOR
+/*
   response->print( "<script>function getPowerState(){"
     "var v=document.getElementById('pgid0'),"
         "c=document.getElementById('pgid1'),"
@@ -75,6 +79,7 @@ void handleRootPage()
          "s.style=\"background-color: #ff8080\";"
       "}"
     "})}setInterval(getPowerState,5e3);</script>" );
+    */
 #else
   sendPrint(
       "<script>function getPowerState(){var e = "

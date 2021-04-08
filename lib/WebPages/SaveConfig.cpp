@@ -98,10 +98,12 @@ void storeConfigValue(const char *name, const char *value)
   paramChars(appcfgWR.ohab_password, A_ohab_password, name, value);
 
 #ifdef HAVE_ENERGY_SENSOR
+/*
   paramChars(request, appcfgWR.ohab_item_voltage, A_ohab_item_voltage, DEFAULT_OHAB_ITEM_VOLTAGE);
   paramChars(request, appcfgWR.ohab_item_current, A_ohab_item_current, DEFAULT_OHAB_ITEM_CURRENT);
   paramChars(request, appcfgWR.ohab_item_power, A_ohab_item_power, DEFAULT_OHAB_ITEM_POWER);
   appcfgWR.ohab_sending_interval = paramInt(request, A_ohab_sending_interval, DEFAULT_OHAB_SENDING_INTERVAL);
+*/
 #endif
 
   // Alexa
