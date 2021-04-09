@@ -1,4 +1,4 @@
-# ESP8266-WiFi-Socket-II
+# ESP8266-WiFi-Socket-3
 
 ## Alternative Firmware for
 
@@ -14,16 +14,7 @@
 
 ## Precompiled Firmware
 
-### Attention - update OTA from 1.1.x to 2.x for OBI Version 1 only
-
-> If you like to update from firmware 1.1.x (OBI Version 1) to 2.x over the air (OTA) please first flash firmware version 1.2.0migration.
->
-> If you try to update direct from 1.1.x to the current 2.x firmware
-> version you will get an "out of memory" error
->
-> Due to a new memory model the firmware will reset all settings to the default values
-
-Find the precompiled firmware in the [firmware](https://github.com/thorsten-l/ESP8266-WiFi-Socket-II/tree/master/firmware) directory.
+Find binaries in github releases
 
 ## Compile
 
@@ -65,8 +56,6 @@ After a firmware reset the following values are set.
 | OpenHAB User               | user                  |                                       |
 | OpenHAB Password           | password              |                                       |
 | OpenHAB SendingInterval    | 60                    | interval time in seconds (0=disable)  |
-| Alexa enabled              | **false**             |                                       |
-| Alexa devicename           | Socket                | Devicename for Alexa HA               |
 | MQTT Enabled               | **false**             |                                       |
 | MQTT ClientId              | WifiSocket1           |                                       |
 | MQTT Host                  | 192.168.1.1           |                                       |
@@ -81,10 +70,6 @@ After a firmware reset the following values are set.
 | MQTT Topic Power           | powermeter1/power     |  ('-' = disables this topic)          |
 | MQTT Topic JSON            | powermeter1/json      |  sending all values in JSON format    |
 | MQTT Sending Interval      | 60                    |  interval time in seconds (0=disable) |
-| Syslog Enabled             | **false**             |                                       |
-| Syslog Host                | 192.168.1.1           |                                       |
-| Syslog Port (TCP)          | 514                   |                                       |
-| Syslog App Name            | gateway-doorbell      |                                       |
 
 \*1 In WiFi Station-Mode only
 
