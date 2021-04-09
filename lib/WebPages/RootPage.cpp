@@ -45,24 +45,21 @@ void handleRootPage()
 
 #if defined(HAVE_ENERGY_SENSOR) && defined(HAVE_HLW8012)
   sendLegend("Energy Sensor");
-  /*
   int rid=0;
   char valueBuffer[32];
 
   sprintf( valueBuffer, "%0.1fV", hlw8012Handler.getVoltage() );
-  prTextGroupReadOnly( response, rid++, "Voltage", valueBuffer );
+  sendTextGroupReadOnly( rid++, "Voltage", valueBuffer );
   sprintf( valueBuffer, "%0.2fA", hlw8012Handler.getCurrent() );
-  prTextGroupReadOnly( response, rid++, "Current", valueBuffer );
+  sendTextGroupReadOnly( rid++, "Current", valueBuffer );
   sprintf( valueBuffer, "%0.1fW", hlw8012Handler.getPower() );
-  prTextGroupReadOnly( response, rid++, "Power", valueBuffer );
-  */
+  sendTextGroupReadOnly( rid++, "Power", valueBuffer );
 #endif
 
   sendPrint("</fieldset></form>\n");
 
 #ifdef HAVE_ENERGY_SENSOR
-/*
-  response->print( "<script>function getPowerState(){"
+  sendPrint( "<script>function getPowerState(){"
     "var v=document.getElementById('pgid0'),"
         "c=document.getElementById('pgid1'),"
         "p=document.getElementById('pgid2');"
@@ -71,7 +68,7 @@ void handleRootPage()
       "v.value=o.voltage.toFixed(1)+'V',"
       "c.value=o.current.toFixed(2)+'A',"
       "p.value=o.power.toFixed(1)+'W';"
-      "if(o.state===1){"
+      "if(o.state===\"ON\"){"
          "s.textContent=\"Power is ON\";"
          "s.style=\"background-color: #80ff80\";"
       "} else { "
@@ -79,7 +76,6 @@ void handleRootPage()
          "s.style=\"background-color: #ff8080\";"
       "}"
     "})}setInterval(getPowerState,5e3);</script>" );
-    */
 #else
   sendPrint(
       "<script>function getPowerState(){var e = "

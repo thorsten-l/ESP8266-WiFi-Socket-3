@@ -5,8 +5,8 @@
 #include <DefaultAppConfig.h>
 #include <ESP8266WebServer.h>
 
-#define JSON_RELAY_ON    1
-#define JSON_RELAY_OFF   2
+#define JSON_RELAY_ON 1
+#define JSON_RELAY_OFF 2
 #define JSON_RELAY_STATE 3
 
 extern ESP8266WebServer server;
@@ -43,5 +43,7 @@ extern void sendFooter();
 extern void sendPrintf(const char *format, ...);
 extern void sendPrint(const char *message);
 extern void sendLegend(const char *name);
+extern void sendGroupLabel(int id, const char *label);
+extern void sendTextGroupReadOnly(int id, const char *label, const char *value);
 
 #endif

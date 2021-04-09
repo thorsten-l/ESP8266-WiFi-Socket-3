@@ -219,6 +219,21 @@ void sendLegend(const char *name)
   sendPrintf("<legend>%s</legend>", name);
 }
 
+void sendGroupLabel( int id, const char *label )
+{
+  sendPrintf(
+    "<div class='pure-control-group'>"
+      "<label for='pgid%d'>%s</label>", id, label );
+}
+
+void sendTextGroupReadOnly( int id, const char *label, const char *value )
+{
+  sendGroupLabel( id, label );
+  sendPrintf(
+      "<input id='pgid%d' type='text' maxlength='64' readonly value='%s'>"
+    "</div>", id, value );
+}
+
 WebHandler::WebHandler() 
 { 
   initialized = false; 
