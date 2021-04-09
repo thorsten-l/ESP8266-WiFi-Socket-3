@@ -9,7 +9,7 @@
 #define LOG0( format ) Serial.printf( "(%lu) " format, millis())
 #define LOG1( format, ... ) Serial.printf( "(%lu) " format, millis(), ##__VA_ARGS__ )
 
-#define APP_NAME "WiFi Socket II"
+#define APP_NAME "WiFi Socket 3"
 #define APP_AUTHOR "Dr. Thorsten Ludewig <t.ludewig@gmail.com>"
 #define APP_CONFIG_FILE_JSON "/config.json"
 
