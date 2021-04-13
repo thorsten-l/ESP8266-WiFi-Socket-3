@@ -201,7 +201,7 @@ void App::setup()
 
 #if defined(BOARD_TYPE_OBI_V2) || defined(BOARD_TYPE_DEV1) ||         \
     defined(BOARD_TYPE_BW_SHP6) || defined(BOARD_TYPE_BW_SHP6_V11) || \
-    defined(BOARD_TYPE_SHELLY1)
+    defined(BOARD_TYPE_SHELLY1) || defined(BOARD_TYPE_GEBA_01SWP)
 
 #ifdef POWER_LED
   pinMode(POWER_LED, OUTPUT);

@@ -79,4 +79,15 @@
   #define RELAY_PIN     4
 #endif
 
+#ifdef BOARD_TYPE_GEBA_01SWP
+  #define WIFI_LED      4
+  #define POWER_LED     5
+  #define POWER_BUTTON  13
+  #define RELAY_PIN     12
+  #define WIFI_LED_ON   0
+  #define WIFI_LED_OFF  1
+  #define POWER_LED_ON  0
+  #define POWER_LED_OFF 1
+#endif
+
 #endif
