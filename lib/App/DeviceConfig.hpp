@@ -90,4 +90,12 @@
   #define POWER_LED_OFF 1
 #endif
 
+#ifdef BOARD_TYPE_SONOFF_BASIC
+  #define WIFI_LED      13
+  #define POWER_BUTTON  0
+  #define RELAY_PIN     12
+  #define WIFI_LED_ON   0
+  #define WIFI_LED_OFF  1
+#endif
+
 #endif
