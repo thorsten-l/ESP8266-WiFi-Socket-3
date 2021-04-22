@@ -12,6 +12,7 @@
 #include <WifiHandler.hpp>
 #include <WebPages.h>
 #include <RelayHandler.hpp>
+#include <Hlw8012Handler.hpp>
 
 #include <uzlib.h>
 
@@ -47,6 +48,8 @@ const char *getJsonStatus(WiFiClient *client)
     remotePort = server.client().remotePort();
     strncpy(remoteAddress, server.client().remoteIP().toString().c_str(), 31);
   }
+
+  bool isPowerOn = relayHandler.isPowerOn();
 
   int wifi_rssi = WiFi.RSSI();
   int wifi_signal = (wifi_rssi < -100) ? -100 : wifi_rssi;
@@ -91,7 +94,13 @@ const char *getJsonStatus(WiFiClient *client)
           "\"sketch_size\":%u,"
           "\"free_sketch_space\":%u,"
           "\"remote_client_ip\":\"%s\","
-          "\"remote_client_port\":%u"
+          "\"remote_client_port\":%u,"
+          "\"state\":\"%s\""
+#if defined(HAVE_ENERGY_SENSOR) && defined(HAVE_HLW8012)
+          ",\"voltage\":%.2f"
+          ",\"current\":%.2f"
+          ",\"power\":%.2f"
+#endif
           "}"),
           millis(), appUptime(), wifiHandler.getHostname(),
           ESP.getFullVersion().c_str(), ESP.getCoreVersion().c_str(), 
@@ -106,7 +115,16 @@ const char *getJsonStatus(WiFiClient *client)
           WiFi.subnetMask().toString().c_str(), 
           WiFi.dnsIP().toString().c_str(), fsTotalBytes, fsUsedBytes,
           ESP.getFreeHeap(), ESP.getSketchSize(), ESP.getFreeSketchSpace(), 
-          remoteAddress, remotePort );
+          remoteAddress, remotePort,
+          // state
+          (isPowerOn) ? "ON" : "OFF"
+
+#if defined(HAVE_ENERGY_SENSOR) && defined(HAVE_HLW8012)
+          , (isPowerOn) ? hlw8012Handler.getVoltage() : 0
+          , (isPowerOn) ? hlw8012Handler.getCurrent() : 0
+          , (isPowerOn) ? hlw8012Handler.getPower() : 0
+#endif
+          );
 
   return buffer;
 }
