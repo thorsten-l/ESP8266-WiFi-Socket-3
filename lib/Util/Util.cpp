@@ -3,15 +3,6 @@
 
 extern void sendPrint(const char *message);
 
-char buffer[BUFFER_LENGTH+1];
-char buffer2[BUFFER2_LENGTH+1];
-
-#define MAX_MESSAGE_LENGTH 200
-#define MESSAGE_BUFFER_LINES 11
-char messageBuffer[(MAX_MESSAGE_LENGTH + 1) * MESSAGE_BUFFER_LINES];
-int messageStartIndex = 0;
-int messageEndIndex = 0;
-
 /*
 Find the description about the boot device code here:
 https://www.sigmdel.ca/michel/program/esp8266/arduino/watchdogs2_en.html

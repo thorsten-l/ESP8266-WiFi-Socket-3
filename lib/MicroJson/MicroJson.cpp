@@ -1,3 +1,4 @@
+#include <App.hpp>
 #include <Arduino.h>
 #include <FS.h>
 
@@ -178,11 +179,11 @@ bool uJson::readEntryChars(const char *n1, const char *n2, char *value)
   {
     int i = 0;
     int r;
-    while ((r = file.read()) >= 0 && r != '"' && i < 64)
+    while ((r = file.read()) >= 0 && r != '"' && i < ATTRIBUTE_SIZE)
     {
       value[i++] = r;
     }
-    if (r == '"' && i < 64)
+    if (r == '"' && i < ATTRIBUTE_SIZE)
     {
       value[i] = 0;
       return false;

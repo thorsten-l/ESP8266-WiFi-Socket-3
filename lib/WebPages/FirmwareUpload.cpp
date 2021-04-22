@@ -3,13 +3,13 @@
 #include "WebPages.h"
 
 bool firmwareUploadFailed;
-const char *firmwareUploadErrorMessage;
+PGM_P firmwareUploadErrorMessage;
 
-static const char ERROR_UNDEFINED[] = "Undefined";
-static const char ERROR_FILE_SIZE_ZERO[] = "Firmware file size is zero";
-static const char ERROR_INVALID_FILENAME[] = "Invalid firmware filename";
-static const char ERROR_NOT_ENOUGH_MEMORY[] = "Not enough memory";
-static const char ERROR_WRONG_FILE_FORMAT[] = "Wrong file format";
+PGM_P ERROR_UNDEFINED PROGMEM = "Undefined";
+PGM_P ERROR_FILE_SIZE_ZERO PROGMEM = "Firmware file size is zero";
+PGM_P ERROR_INVALID_FILENAME PROGMEM = "Invalid firmware filename";
+PGM_P ERROR_NOT_ENOUGH_MEMORY PROGMEM = "Not enough memory";
+PGM_P ERROR_WRONG_FILE_FORMAT PROGMEM = "Wrong file format";
 
 static bool uploadError;
 

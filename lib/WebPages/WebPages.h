@@ -41,8 +41,8 @@ extern void sendHeader(const char *title, bool sendMetaRefresh);
 extern void sendHeader(const char *title, bool sendMetaRefresh, const char *style);
 extern void sendFooter();
 extern void sendPrintf(const char *format, ...);
-extern void sendPrint(const char *message);
-extern void sendLegend(const char *name);
+extern void sendPrint_P(PGM_P message);
+extern void sendLegend_P(PGM_P name);
 extern void sendGroupLabel(int id, const char *label);
 extern void sendTextGroupReadOnly(int id, const char *label, const char *value);
 

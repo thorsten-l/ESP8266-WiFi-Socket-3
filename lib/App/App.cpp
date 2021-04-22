@@ -16,11 +16,30 @@ AppConfig appcfg;
 AppConfig appcfgWR;
 AppConfig appcfgRD;
 
-char *formatChipId( char *attribute )
+char *buffer;
+char *buffer2;
+
+void appMemoryInit()
 {
-  snprintf( buffer, 63, attribute, ESP.getChipId());
-  buffer[63]= 0;
-  strncpy(attribute,buffer,63);
+  if (buffer == NULL)
+    buffer = (char *)malloc(BUFFER_LENGTH + 1);
+  if (buffer2 == NULL)
+    buffer2 = (char *)malloc(BUFFER2_LENGTH + 1);
+}
+
+void appMemoryFree()
+{
+  free(buffer);
+  free(buffer2);
+  buffer = buffer2 = NULL;
+  delay(250);
+}
+
+char *formatChipId(char *attribute)
+{
+  snprintf(buffer, (ATTRIBUTE_SIZE-1), attribute, ESP.getChipId());
+  buffer[(ATTRIBUTE_SIZE-1)] = 0;
+  strncpy(attribute, buffer, (ATTRIBUTE_SIZE-1));
   return attribute;
 }
 
@@ -38,18 +57,20 @@ const char *appUptime()
 
 void appShowHeader(Stream &out)
 {
-  out.println("\n\n" APP_NAME " - " APP_VERSION " - " APP_AUTHOR);
-  out.println("BUILD: " __DATE__ " " __TIME__);
-  out.println("PIOENV: " PIOENV);
-  out.println("PIOPLATFORM: " PIOPLATFORM);
-  out.println("PIOFRAMEWORK: " PIOFRAMEWORK);
-  out.printf("ESP SDK Version: %s\n", ESP.getSdkVersion());
-  out.printf("ESP Core Version: %s\n\n", ESP.getCoreVersion().c_str());
+  out.println(PSTR("\n\n" APP_NAME " - " APP_VERSION " - " APP_AUTHOR));
+  out.println(PSTR("BUILD: " __DATE__ " " __TIME__));
+  out.println(PSTR("PIOENV: " PIOENV));
+  out.println(PSTR("PIOPLATFORM: " PIOPLATFORM));
+  out.println(PSTR("PIOFRAMEWORK: " PIOFRAMEWORK));
+  out.printf_P(PSTR("ESP SDK Version: %s\n"), ESP.getSdkVersion());
+  out.printf_P(PSTR("ESP Core Version: %s\n\n"), ESP.getCoreVersion().c_str());
 }
 
 App::App()
 {
-  sprintf(initFilename, "/%08X.ini", ESP.getChipId());
+  buffer = buffer2 = NULL;
+  appMemoryInit();
+  sprintf_P(initFilename, PSTR("/%08X.ini"), ESP.getChipId());
   defaultConfig();
   initSPIFFS = false;
   initialized = true;
@@ -60,58 +81,60 @@ App::App()
 
 void App::defaultConfig()
 {
-  strncpy(appcfg.wifi_ssid, DEFAULT_WIFI_SSID, 63);
-  strncpy(appcfg.wifi_password, DEFAULT_WIFI_PASSWORD, 63);
+  strncpy(appcfg.wifi_ssid, DEFAULT_WIFI_SSID, (ATTRIBUTE_SIZE-1));
+  strncpy(appcfg.wifi_password, DEFAULT_WIFI_PASSWORD, (ATTRIBUTE_SIZE-1));
   appcfg.wifi_mode = DEFAULT_WIFI_MODE;
 
   appcfg.net_mode = DEFAULT_NET_MODE;
-  strncpy(appcfg.net_host, DEFAULT_NET_HOST, 63);
-  strncpy(appcfg.net_mask, DEFAULT_NET_MASK, 63);
-  strncpy(appcfg.net_gateway, DEFAULT_NET_GATEWAY, 63);
-  strncpy(appcfg.net_dns, DEFAULT_NET_DNS, 63);
+  strncpy(appcfg.net_host, DEFAULT_NET_HOST, (ATTRIBUTE_SIZE-1));
+  strncpy(appcfg.net_mask, DEFAULT_NET_MASK, (ATTRIBUTE_SIZE-1));
+  strncpy(appcfg.net_gateway, DEFAULT_NET_GATEWAY, (ATTRIBUTE_SIZE-1));
+  strncpy(appcfg.net_dns, DEFAULT_NET_DNS, (ATTRIBUTE_SIZE-1));
 
-  strncpy(appcfg.ota_hostname, DEFAULT_OTA_HOSTNAME, 63);
-  strncpy(appcfg.ota_password, DEFAULT_OTA_PASSWORD, 63);
+  strncpy(appcfg.ota_hostname, DEFAULT_OTA_HOSTNAME, (ATTRIBUTE_SIZE-1));
+  strncpy(appcfg.ota_password, DEFAULT_OTA_PASSWORD, (ATTRIBUTE_SIZE-1));
 
-  strncpy(appcfg.admin_password, DEFAULT_ADMIN_PASSWORD, 63);
+  strncpy(appcfg.admin_password, DEFAULT_ADMIN_PASSWORD, (ATTRIBUTE_SIZE-1));
 
   appcfg.ohab_enabled = DEFAULT_OHAB_ENABLED;
   appcfg.ohab_version = DEFAULT_OHAB_VERSION;
-  strncpy(appcfg.ohab_host, DEFAULT_OHAB_HOST, 63);
+  strncpy(appcfg.ohab_host, DEFAULT_OHAB_HOST, (ATTRIBUTE_SIZE-1));
   appcfg.ohab_port = DEFAULT_OHAB_PORT;
   appcfg.ohab_useauth = DEFAULT_OHAB_USEAUTH;
-  strncpy(appcfg.ohab_user, DEFAULT_OHAB_USER, 63);
-  strncpy(appcfg.ohab_password, DEFAULT_OHAB_PASSWORD, 63);
-  strncpy(appcfg.ohab_itemname, DEFAULT_OHAB_ITEMNAME, 63);
+  strncpy(appcfg.ohab_user, DEFAULT_OHAB_USER, (ATTRIBUTE_SIZE-1));
+  strncpy(appcfg.ohab_password, DEFAULT_OHAB_PASSWORD, (ATTRIBUTE_SIZE-1));
+  strncpy(appcfg.ohab_itemname, DEFAULT_OHAB_ITEMNAME, (ATTRIBUTE_SIZE-1));
 
   appcfg.alexa_enabled = DEFAULT_ALEXA_ENABLED;
-  strncpy(appcfg.alexa_devicename, DEFAULT_ALEXA_DEVICENAME, 63);
+  strncpy(appcfg.alexa_devicename, DEFAULT_ALEXA_DEVICENAME, (ATTRIBUTE_SIZE-1));
 
   appcfg.mqtt_enabled = DEFAULT_MQTT_ENABLED;
-  strncpy(appcfg.mqtt_clientid, DEFAULT_MQTT_CLIENTID, 63);
-  strncpy(appcfg.mqtt_host, DEFAULT_MQTT_HOST, 63);
+  strncpy(appcfg.mqtt_clientid, DEFAULT_MQTT_CLIENTID, (ATTRIBUTE_SIZE-1));
+  strncpy(appcfg.mqtt_host, DEFAULT_MQTT_HOST, (ATTRIBUTE_SIZE-1));
   appcfg.mqtt_port = DEFAULT_MQTT_PORT;
   appcfg.mqtt_useauth = DEFAULT_MQTT_USEAUTH;
-  strncpy(appcfg.mqtt_user, DEFAULT_MQTT_USER, 63);
-  strncpy(appcfg.mqtt_password, DEFAULT_MQTT_PASSWORD, 63);
-  strncpy(appcfg.mqtt_intopic, DEFAULT_MQTT_INTOPIC, 63);
-  strncpy(appcfg.mqtt_outtopic, DEFAULT_MQTT_OUTTOPIC, 63);
+  strncpy(appcfg.mqtt_user, DEFAULT_MQTT_USER, (ATTRIBUTE_SIZE-1));
+  strncpy(appcfg.mqtt_password, DEFAULT_MQTT_PASSWORD, (ATTRIBUTE_SIZE-1));
+  strncpy(appcfg.mqtt_intopic, DEFAULT_MQTT_INTOPIC, (ATTRIBUTE_SIZE-1));
+  strncpy(appcfg.mqtt_outtopic, DEFAULT_MQTT_OUTTOPIC, (ATTRIBUTE_SIZE-1));
 
+/*
   appcfg.syslog_enabled = DEFAULT_SYSLOG_ENABLED;
-  strncpy(appcfg.syslog_host, DEFAULT_SYSLOG_HOST, 63);
+  strncpy(appcfg.syslog_host, DEFAULT_SYSLOG_HOST, (ATTRIBUTE_SIZE-1));
   appcfg.syslog_port = DEFAULT_SYSLOG_PORT;
-  strncpy(appcfg.syslog_app_name, DEFAULT_SYSLOG_APP_NAME, 63);
+  strncpy(appcfg.syslog_app_name, DEFAULT_SYSLOG_APP_NAME, (ATTRIBUTE_SIZE-1));
+*/
 
 #ifdef HAVE_ENERGY_SENSOR
-  strncpy(appcfg.ohab_item_voltage, DEFAULT_OHAB_ITEM_VOLTAGE, 63);
-  strncpy(appcfg.ohab_item_current, DEFAULT_OHAB_ITEM_CURRENT, 63);
-  strncpy(appcfg.ohab_item_power, DEFAULT_OHAB_ITEM_POWER, 63);
+  strncpy(appcfg.ohab_item_voltage, DEFAULT_OHAB_ITEM_VOLTAGE, (ATTRIBUTE_SIZE-1));
+  strncpy(appcfg.ohab_item_current, DEFAULT_OHAB_ITEM_CURRENT, (ATTRIBUTE_SIZE-1));
+  strncpy(appcfg.ohab_item_power, DEFAULT_OHAB_ITEM_POWER, (ATTRIBUTE_SIZE-1));
   appcfg.ohab_sending_interval = DEFAULT_OHAB_SENDING_INTERVAL;
 
-  strncpy(appcfg.mqtt_topic_voltage, DEFAULT_MQTT_TOPIC_VOLTAGE, 63);
-  strncpy(appcfg.mqtt_topic_current, DEFAULT_MQTT_TOPIC_CURRENT, 63);
-  strncpy(appcfg.mqtt_topic_power, DEFAULT_MQTT_TOPIC_POWER, 63);
-  strncpy(appcfg.mqtt_topic_json, DEFAULT_MQTT_TOPIC_JSON, 63);
+  strncpy(appcfg.mqtt_topic_voltage, DEFAULT_MQTT_TOPIC_VOLTAGE, (ATTRIBUTE_SIZE-1));
+  strncpy(appcfg.mqtt_topic_current, DEFAULT_MQTT_TOPIC_CURRENT, (ATTRIBUTE_SIZE-1));
+  strncpy(appcfg.mqtt_topic_power, DEFAULT_MQTT_TOPIC_POWER, (ATTRIBUTE_SIZE-1));
+  strncpy(appcfg.mqtt_topic_json, DEFAULT_MQTT_TOPIC_JSON, (ATTRIBUTE_SIZE-1));
 #endif
   appcfg.mqtt_sending_interval = DEFAULT_MQTT_SENDING_INTERVAL;
 
@@ -201,7 +224,7 @@ void App::setup()
 
 #if defined(BOARD_TYPE_OBI_V2) || defined(BOARD_TYPE_DEV1) ||         \
     defined(BOARD_TYPE_BW_SHP6) || defined(BOARD_TYPE_BW_SHP6_V11) || \
-    defined(BOARD_TYPE_SHELLY1) || defined(BOARD_TYPE_GEBA_01SWP) || \
+    defined(BOARD_TYPE_SHELLY1) || defined(BOARD_TYPE_GEBA_01SWP) ||  \
     defined(BOARD_TYPE_SONOFF_BASIC)
 
 #ifdef POWER_LED
@@ -222,12 +245,8 @@ void App::setup()
     Serial.println();
   }
 
-  Serial.println("\n\n");
-  Serial.println("\n\n");
-  Serial.println(F(APP_NAME ", Version " APP_VERSION ", by " APP_AUTHOR));
-  Serial.println("Build date: " __DATE__ " " __TIME__);
-  Serial.printf("appcfg file size: %d bytes\n\n", sizeof(appcfg));
-
+  appShowHeader(Serial);
+  Serial.printf("appcfg size: %d bytes\n\n", sizeof(appcfg));
   showChipInfo();
 
   if (LittleFS.begin())
@@ -292,16 +311,16 @@ void App::setup()
 ///////////////////////////////////////////////////////////////
 #ifdef OVERRIDE_WIFI_SETTINGS
   appcfg.wifi_mode = OVERRIDE_WIFI_MODE;
-  strcpy( appcfg.wifi_ssid, OVERRIDE_WIFI_SSID );
-  strcpy( appcfg.wifi_password, OVERRIDE_WIFI_PASSWORD );
+  strcpy(appcfg.wifi_ssid, OVERRIDE_WIFI_SSID);
+  strcpy(appcfg.wifi_password, OVERRIDE_WIFI_PASSWORD);
   appcfg.ota_enabled = OVERRIDE_OTA_ENABLED;
 #endif
-///////////////////////////////////////////////////////////////
-  
-  formatChipId( appcfg.ota_hostname );
-  formatChipId( appcfg.mqtt_clientid );
-  formatChipId( appcfg.mqtt_intopic );
-  formatChipId( appcfg.mqtt_outtopic );
+  ///////////////////////////////////////////////////////////////
+
+  formatChipId(appcfg.ota_hostname);
+  formatChipId(appcfg.mqtt_clientid);
+  formatChipId(appcfg.mqtt_intopic);
+  formatChipId(appcfg.mqtt_outtopic);
 
   memcpy(&appcfgWR, &appcfg, sizeof(appcfg));
 }
@@ -398,11 +417,12 @@ void App::writeConfig()
 #endif
     j.writeEntry(A_mqtt_sending_interval, appcfgWR.mqtt_sending_interval);
 
+/*
     j.writeEntry(A_syslog_enabled, appcfgWR.syslog_enabled);
     j.writeEntry(A_syslog_host, appcfgWR.syslog_host);
     j.writeEntry(A_syslog_port, appcfgWR.syslog_port);
     j.writeEntry(A_syslog_app_name, appcfgWR.syslog_app_name);
-
+*/
 #ifdef POWER_BUTTON_IS_MULTIMODE
     j.writeEntry(A_power_button_mode, appcfgWR.power_button_mode);
 #endif
@@ -495,12 +515,14 @@ void App::printConfig(AppConfig ac)
 #endif
   Serial.printf("    Sending Interval: %ld\n", ac.mqtt_sending_interval);
 
+/*
   Serial.println("\n  Syslog:");
   Serial.printf("    Enabled: %s\n",
                 (ac.syslog_enabled ? "true" : "false"));
   Serial.printf("    Host: %s\n", ac.syslog_host);
   Serial.printf("    Port: %d\n", ac.syslog_port);
   Serial.printf("    App Name: %s\n", ac.syslog_app_name);
+*/
 #ifdef POWER_BUTTON_IS_MULTIMODE
   Serial.println("\n  Power button:");
   Serial.printf("    Mode: %d\n", ac.power_button_mode);
@@ -621,10 +643,12 @@ bool App::loadJsonConfig(const char *filename)
 #endif
       readError |= j.readEntryULong(attributeName, A_mqtt_sending_interval, &appcfgRD.mqtt_sending_interval);
 
+/*
       readError |= j.readEntryBoolean(attributeName, A_syslog_enabled, &appcfgRD.syslog_enabled);
       readError |= j.readEntryChars(attributeName, A_syslog_host, appcfgRD.syslog_host);
       readError |= j.readEntryInteger(attributeName, A_syslog_port, &appcfgRD.syslog_port);
       readError |= j.readEntryChars(attributeName, A_syslog_app_name, appcfgRD.syslog_app_name);
+*/
 
 #ifdef POWER_BUTTON_IS_MULTIMODE
       readError |= j.readEntryInteger(attributeName, A_power_button_mode, &appcfgRD.power_button_mode);

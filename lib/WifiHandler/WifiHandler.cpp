@@ -146,10 +146,10 @@ const bool WifiHandler::handle(time_t timestamp)
           if (appcfg.net_mode == NET_MODE_DHCP)
           {
             Serial.println("copy wifi config from dhcp response");
-            strncpy(appcfg.net_host, WiFi.localIP().toString().c_str(), 63);
-            strncpy(appcfg.net_gateway, WiFi.gatewayIP().toString().c_str(), 63);
-            strncpy(appcfg.net_mask, WiFi.subnetMask().toString().c_str(), 63);
-            strncpy(appcfg.net_dns, WiFi.dnsIP().toString().c_str(), 63);
+            strncpy(appcfg.net_host, WiFi.localIP().toString().c_str(), (ATTRIBUTE_SIZE-1));
+            strncpy(appcfg.net_gateway, WiFi.gatewayIP().toString().c_str(), (ATTRIBUTE_SIZE-1));
+            strncpy(appcfg.net_mask, WiFi.subnetMask().toString().c_str(), (ATTRIBUTE_SIZE-1));
+            strncpy(appcfg.net_dns, WiFi.dnsIP().toString().c_str(), (ATTRIBUTE_SIZE-1));
           }
 
           Serial.printf(" - host ip address: %s\n", WiFi.localIP().toString().c_str());

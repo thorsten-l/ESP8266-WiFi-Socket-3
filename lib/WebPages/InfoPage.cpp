@@ -3,21 +3,21 @@
 void handleInfoPage()
 {
   sendHeader(APP_NAME " - Info");
-  sendPrint("<form class='pure-form'>");
-  sendLegend("Application");
-  sendPrint(
+  sendPrint_P(PSTR("<form class='pure-form'>"));
+  sendLegend_P(PSTR("Application"));
+  sendPrint_P(PSTR(
       "<p>Name: " APP_NAME "</p>"
       "<p>Version: " APP_VERSION "</p>"
       "<p>PlatformIO Environment: " PIOENV "</p>"
-      "<p>Author: Dr. Thorsten Ludewig &lt;t.ludewig@gmail.com></p>");
+      "<p>Author: Dr. Thorsten Ludewig &lt;t.ludewig@gmail.com></p>"));
 
-  sendLegend("Build");
-  sendPrint("<p>Date: " __DATE__ "</p>"
-            "<p>Time: " __TIME__ "</p>");
+  sendLegend_P(PSTR("Build"));
+  sendPrint_P(PSTR("<p>Date: " __DATE__ "</p>"
+            "<p>Time: " __TIME__ "</p>"));
 
-  sendLegend("RESTful API");
+  sendLegend_P(PSTR("RESTful API"));
 
-  sendPrint("<p><b>Legacy API</b> - Returns in JSON format</p>");
+  sendPrint_P(PSTR("<p><b>Legacy API</b> - Returns in JSON format</p>"));
 
   sendPrintf(
       "<p><a href='http://%s/info'>http://%s/info</a> - ESP8266 Info</p>",
@@ -35,8 +35,8 @@ void handleInfoPage()
       "<p><a href='http://%s/state'>http://%s/state</a></p>",
       WiFi.localIP().toString().c_str(), WiFi.localIP().toString().c_str());
  
-  sendPrint("<p>&nbsp;</p>");
-  sendPrint("<p><b>JSON API</b> - Returns status in JSON format</p>");
+  sendPrint_P(PSTR("<p>&nbsp;</p>"));
+  sendPrint_P(PSTR("<p><b>JSON API</b> - Returns status in JSON format</p>"));
 
   sendPrintf(
       "<p>http://%s/api/json - HTTP_POST socket (ON or OFF)</p>",
@@ -62,8 +62,8 @@ void handleInfoPage()
       "<p><a href='http://%s/state'>http://%s/state</a></p>",
       WiFi.localIP().toString().c_str(), WiFi.localIP().toString().c_str());
 
-  sendPrint("<p>&nbsp;</p>");
-  sendPrint("<p><b>Plain text API</b> - Returns status in plain text format</p>");
+  sendPrint_P(PSTR("<p>&nbsp;</p>"));
+  sendPrint_P(PSTR("<p><b>Plain text API</b> - Returns status in plain text format</p>"));
 
   sendPrintf(
       "<p>http://%s/api/plain - HTTP_POST socket (ON or OFF)</p>",
@@ -89,7 +89,7 @@ void handleInfoPage()
       "<p><a href='http://%s/plain/state'>http://%s/plain/state</a></p>",
       WiFi.localIP().toString().c_str(), WiFi.localIP().toString().c_str());
 
-  sendLegend("Services");
+  sendLegend_P(PSTR("Services"));
 
   sendPrintf("<p>OTA Enabled: %s</p>",
              (appcfg.ota_enabled) ? "true" : "false");
@@ -102,6 +102,6 @@ void handleInfoPage()
 //  sendPrintf("<p>Syslog Enabled: %s</p>",
 //             (appcfg.syslog_enabled) ? "true" : "false");
 
-  sendPrint("</form>");
+  sendPrint_P(PSTR("</form>"));
   sendFooter();
 }

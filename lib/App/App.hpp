@@ -32,62 +32,74 @@
 
 extern const char *appUptime();
 
+#define BUFFER_LENGTH 4096
+#define BUFFER2_LENGTH 256
+
+extern char *buffer;
+extern char *buffer2;
+extern void appMemoryInit();
+extern void appMemoryFree();
+
+#define ATTRIBUTE_SIZE 40
+
 typedef struct appconfig
 {
-  char wifi_ssid[64];
-  char wifi_password[64];
+  char wifi_ssid[ATTRIBUTE_SIZE];
+  char wifi_password[ATTRIBUTE_SIZE];
   int  wifi_mode;
 
   int net_mode;
-  char net_host[64];
-  char net_mask[64];
-  char net_gateway[64];
-  char net_dns[64];
+  char net_host[ATTRIBUTE_SIZE];
+  char net_mask[ATTRIBUTE_SIZE];
+  char net_gateway[ATTRIBUTE_SIZE];
+  char net_dns[ATTRIBUTE_SIZE];
 
   bool ota_enabled;
-  char ota_hostname[64];
-  char ota_password[64];
+  char ota_hostname[ATTRIBUTE_SIZE];
+  char ota_password[ATTRIBUTE_SIZE];
 
-  char admin_password[64];
+  char admin_password[ATTRIBUTE_SIZE];
 
   bool ohab_enabled;
   int  ohab_version;
-  char ohab_host[64];
+  char ohab_host[ATTRIBUTE_SIZE];
   int  ohab_port;
   bool ohab_useauth;
-  char ohab_user[64];
-  char ohab_password[64];
-  char ohab_itemname[64];
+  char ohab_user[ATTRIBUTE_SIZE];
+  char ohab_password[ATTRIBUTE_SIZE];
+  char ohab_itemname[ATTRIBUTE_SIZE];
 #ifdef HAVE_ENERGY_SENSOR
-  char ohab_item_voltage[64];
-  char ohab_item_current[64];
-  char ohab_item_power[64];
+  char ohab_item_voltage[ATTRIBUTE_SIZE];
+  char ohab_item_current[ATTRIBUTE_SIZE];
+  char ohab_item_power[ATTRIBUTE_SIZE];
   unsigned long ohab_sending_interval;
 #endif
   bool alexa_enabled;
-  char alexa_devicename[64];
+  char alexa_devicename[ATTRIBUTE_SIZE];
 
   bool mqtt_enabled;
-  char mqtt_clientid[64];
-  char mqtt_host[64];
+  char mqtt_clientid[ATTRIBUTE_SIZE];
+  char mqtt_host[ATTRIBUTE_SIZE];
   int  mqtt_port;
   bool mqtt_useauth;
-  char mqtt_user[64];
-  char mqtt_password[64];
-  char mqtt_intopic[64];
-  char mqtt_outtopic[64];
+  char mqtt_user[ATTRIBUTE_SIZE];
+  char mqtt_password[ATTRIBUTE_SIZE];
+  char mqtt_intopic[ATTRIBUTE_SIZE];
+  char mqtt_outtopic[ATTRIBUTE_SIZE];
 #ifdef HAVE_ENERGY_SENSOR
-  char mqtt_topic_voltage[64];
-  char mqtt_topic_current[64];
-  char mqtt_topic_power[64];
-  char mqtt_topic_json[64];
+  char mqtt_topic_voltage[ATTRIBUTE_SIZE];
+  char mqtt_topic_current[ATTRIBUTE_SIZE];
+  char mqtt_topic_power[ATTRIBUTE_SIZE];
+  char mqtt_topic_json[ATTRIBUTE_SIZE];
 #endif
   unsigned long mqtt_sending_interval;
 
+/*
   bool syslog_enabled;
-  char syslog_host[64];
+  char syslog_host[ATTRIBUTE_SIZE];
   int syslog_port;
-  char syslog_app_name[64];
+  char syslog_app_name[ATTRIBUTE_SIZE];
+*/
 
 #ifdef POWER_BUTTON_IS_MULTIMODE
   int power_button_mode;
