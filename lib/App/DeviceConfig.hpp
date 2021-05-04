@@ -24,6 +24,8 @@
 #endif
 
 #ifdef BOARD_TYPE_DEV1
+  #define POWER_BUTTON_IS_MULTIMODE
+  #define POWER_BUTTON_MULTIMODE_ACTVIE false
   #define WIFI_LED      LED_BUILTIN // D4, GPIO2
   #define POWER_LED     D6          // GPIO12
   #define POWER_BUTTON  D3
@@ -75,6 +77,7 @@
 
 #ifdef BOARD_TYPE_SHELLY1
   #define POWER_BUTTON_IS_MULTIMODE
+  #define POWER_BUTTON_MULTIMODE_ACTVIE true
   #define POWER_BUTTON  5
   #define RELAY_PIN     4
 #endif

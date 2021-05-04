@@ -83,13 +83,13 @@ void loop()
     if( lastButtonState != currentButtonState)
     {
       lastButtonState = currentButtonState;
-      // Serial.print( "-> X <- " );
-      // Serial.println( currentButtonState );
+      Serial.print( "-> X <- " );
+      Serial.println( currentButtonState );
 
       switch ( appcfg.power_button_mode )
       {
         case POWER_BUTTON_MODE_SWITCH:
-          if ( currentButtonState == true )
+          if ( currentButtonState == POWER_BUTTON_MULTIMODE_ACTVIE )
           {
             relayHandler.delayedOn();
           }
@@ -100,7 +100,7 @@ void loop()
           break;
 
         case POWER_BUTTON_MODE_TOGGLE:
-          if ( currentButtonState == true )
+          if ( currentButtonState == POWER_BUTTON_MULTIMODE_ACTVIE )
           {
             relayHandler.toggle();
           }

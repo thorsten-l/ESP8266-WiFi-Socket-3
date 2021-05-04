@@ -188,6 +188,17 @@ static const char *setupProcessor(const char *var)
     return selected;
   }
 
+#ifdef POWER_BUTTON_IS_MULTIMODE
+  // Power Button Mode
+  if (strcmp(var, "power_button_mode_switch" ) == 0 && appcfg.power_button_mode == POWER_BUTTON_MODE_SWITCH)
+    return selected;
+  if (strcmp(var, "power_button_mode_toggle" ) == 0 && appcfg.power_button_mode == POWER_BUTTON_MODE_TOGGLE)
+    return selected;
+  if (strcmp(var, "power_button_mode_toggle_switch" ) == 0 && appcfg.power_button_mode == POWER_BUTTON_MODE_TOGGLE_SWITCH)
+    return selected;
+#endif
+
+
   return nullptr;
 }
 
