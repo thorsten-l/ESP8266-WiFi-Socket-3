@@ -35,10 +35,8 @@ extern const char *appUptime();
 #define BUFFER_LENGTH 4096
 #define BUFFER2_LENGTH 256
 
-extern char *buffer;
-extern char *buffer2;
-extern void appMemoryInit();
-extern void appMemoryFree();
+extern char buffer[];
+extern char buffer2[];
 
 #define ATTRIBUTE_SIZE 40
 

@@ -32,6 +32,7 @@ size_t fsUsedBytes;
 
 WebHandler webHandler;
 ESP8266WebServer server(80);
+struct uzlib_uncomp uzLibDecompressor;
 
 const char *getJsonStatus(WiFiClient *client)
 {
@@ -132,11 +133,10 @@ const char *getJsonStatus(WiFiClient *client)
 int sendUncompressed( const uint8_t *compressedData, const uint32_t compressedDataLength)
 {
   uzlib_init();
-  struct uzlib_uncomp *uzLibDecompressor = (struct uzlib_uncomp *)malloc(sizeof(struct uzlib_uncomp));
   uint32_t uzlib_bytesleft;
 
-  uzLibDecompressor->source = compressedData;
-  uzLibDecompressor->source_limit = compressedData + compressedDataLength;
+  uzLibDecompressor.source = compressedData;
+  uzLibDecompressor.source_limit = compressedData + compressedDataLength;
   
   uzlib_bytesleft = 0;
   for( int i=1; i<5; i++ )
@@ -146,28 +146,26 @@ int sendUncompressed( const uint8_t *compressedData, const uint32_t compressedDa
   }
   // Serial.printf("decompressed file length = %u\n", uzlib_bytesleft );
   
-  uzlib_uncompress_init(uzLibDecompressor, buffer, BUFFER_LENGTH );
+  uzlib_uncompress_init(&uzLibDecompressor, buffer, BUFFER_LENGTH );
   
-  int res = uzlib_gzip_parse_header(uzLibDecompressor);
+  int res = uzlib_gzip_parse_header(&uzLibDecompressor);
   
   if (res != 0) {
     Serial.println("[ERROR] in gzUncompress: uzlib_gzip_parse_header failed!");
-    free(uzLibDecompressor);
     return res;
   }
 
   while( uzlib_bytesleft > 0 ) {
-    uzLibDecompressor->dest_start = (unsigned char *)buffer2;
-    uzLibDecompressor->dest = (unsigned char *)buffer2;
+    uzLibDecompressor.dest_start = (unsigned char *)buffer2;
+    uzLibDecompressor.dest = (unsigned char *)buffer2;
     int to_read = ( uzlib_bytesleft > BUFFER2_LENGTH) ? BUFFER2_LENGTH : uzlib_bytesleft;
-    uzLibDecompressor->dest_limit = (unsigned char *)buffer2 + to_read;
-    uzlib_uncompress(uzLibDecompressor);
+    uzLibDecompressor.dest_limit = (unsigned char *)buffer2 + to_read;
+    uzlib_uncompress(&uzLibDecompressor);
     buffer2[to_read] = 0;
     server.sendContent(buffer2);
     uzlib_bytesleft -= to_read;
   }
 
-  free(uzLibDecompressor);
   return 0;
 }
 
@@ -363,7 +361,7 @@ void WebHandler::setup()
     }
   });
 
-  if (appcfg.ota_enabled == false)
+  if (appcfg.ota_enabled == false )
   {
     MDNS.begin(appcfg.ota_hostname);
   }

@@ -16,24 +16,8 @@ AppConfig appcfg;
 AppConfig appcfgWR;
 AppConfig appcfgRD;
 
-char *buffer;
-char *buffer2;
-
-void appMemoryInit()
-{
-  if (buffer == NULL)
-    buffer = (char *)malloc(BUFFER_LENGTH + 1);
-  if (buffer2 == NULL)
-    buffer2 = (char *)malloc(BUFFER2_LENGTH + 1);
-}
-
-void appMemoryFree()
-{
-  free(buffer);
-  free(buffer2);
-  buffer = buffer2 = NULL;
-  delay(250);
-}
+char buffer[BUFFER_LENGTH+1];
+char buffer2[BUFFER2_LENGTH+1];
 
 char *formatChipId(char *attribute)
 {
@@ -68,8 +52,6 @@ void appShowHeader(Stream &out)
 
 App::App()
 {
-  buffer = buffer2 = NULL;
-  appMemoryInit();
   sprintf_P(initFilename, PSTR("/%08X.ini"), ESP.getChipId());
   defaultConfig();
   initSPIFFS = false;
